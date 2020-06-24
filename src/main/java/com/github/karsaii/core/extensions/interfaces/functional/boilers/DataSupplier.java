@@ -13,4 +13,8 @@ public interface DataSupplier<T> extends Function<Void, Data<T>> {
     default Data<T> get() {
         return apply(null);
     }
+
+    default Function<Void, Data<T>> getInterfaceIdentity() {
+        return this;
+    }
 }

@@ -1,4 +1,4 @@
-package com.github.karsaii.core.extensions.namespaces;
+package com.github.karsaii.core.extensions.namespaces.predicates;
 
 import java.util.Collection;
 

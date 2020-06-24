@@ -1,5 +1,7 @@
 package com.github.karsaii.core.extensions.namespaces;
 
+import com.github.karsaii.core.extensions.namespaces.predicates.AmountPredicatesFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
 import com.github.karsaii.core.extensions.records.ExtensionListData;
 import com.github.karsaii.core.extensions.constants.IExtendedListConstants;
 

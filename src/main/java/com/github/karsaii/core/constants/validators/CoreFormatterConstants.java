@@ -50,6 +50,12 @@ public abstract class CoreFormatterConstants {
     public static final String VOID_CLASS_GENERIC = Void.class.toGenericString();
     public static final String WAITING_FAILED = "Waiting failed" + COLON_NEWLINE;
 
+    public static final String VALUE_DOES = "Value does ";
+    public static final String VALUE_DOESNT = VALUE_DOES + "not ";
+    public static final String WITH_PAD_VALUE = "with pad value";
+    public static final String START = "start ";
+    public static final String END = "end ";
+
     public static final Map<String, String> isMessageMap = Collections.unmodifiableMap(
         new LinkedHashMap<>(
             Map.ofEntries(

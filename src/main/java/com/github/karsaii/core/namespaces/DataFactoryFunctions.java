@@ -2,6 +2,7 @@ package com.github.karsaii.core.namespaces;
 
 import com.github.karsaii.core.constants.CoreDataConstants;
 import com.github.karsaii.core.constants.DataFactoryConstants;
+import com.github.karsaii.core.extensions.DecoratedList;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.MethodMessageData;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;

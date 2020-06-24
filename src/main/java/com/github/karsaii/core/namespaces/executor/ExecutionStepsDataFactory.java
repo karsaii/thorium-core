@@ -1,6 +1,6 @@
 package com.github.karsaii.core.namespaces.executor;
 
-import com.github.karsaii.core.extensions.namespaces.BasicPredicateFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.executor.ExecutionStepsData;

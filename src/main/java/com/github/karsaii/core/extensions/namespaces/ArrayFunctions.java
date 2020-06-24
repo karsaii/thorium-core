@@ -1,5 +1,7 @@
 package com.github.karsaii.core.extensions.namespaces;
 
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
+
 import java.util.Objects;
 
 import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNull;

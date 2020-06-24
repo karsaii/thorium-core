@@ -6,6 +6,7 @@ import com.github.karsaii.core.extensions.interfaces.functional.QuadPredicate;
 import com.github.karsaii.core.extensions.interfaces.functional.TriPredicate;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.IGetMessage;
 import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
+import com.github.karsaii.core.extensions.namespaces.ExecutorPredicates;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.SimpleMessageData;
@@ -28,7 +29,7 @@ public interface ExecutorFunctionDataFactory {
     ) {
         return new ExecutorFunctionData(
             isNotNull(messageData) ? messageData : new SimpleMessageData(),
-            isNotNull(breakCondition) ? breakCondition : Executor::isExecuting,
+            isNotNull(breakCondition) ? breakCondition : ExecutorPredicates::isExecuting,
             isNotNull(endCondition) ? endCondition : CoreUtilities::isAllDone,
             isNotNull(endMessageHandler) ? endMessageHandler : CoreFormatter::getExecutionEndMessage,
             isNotNull(filterCondition) ? filterCondition : NullableFunctions::isNotNull
@@ -41,7 +42,7 @@ public interface ExecutorFunctionDataFactory {
         QuadFunction<ExecutionStateData, String, Integer, Integer, String> endMessageHandler,
         Predicate<Data<?>> filterCondition
     ) {
-        return getWith(messageData, Executor::isExecuting, endCondition, endMessageHandler, filterCondition);
+        return getWith(messageData, ExecutorPredicates::isExecuting, endCondition, endMessageHandler, filterCondition);
     }
 
     static ExecutorFunctionData getWithDefaultEndCondition(
@@ -100,7 +101,7 @@ public interface ExecutorFunctionDataFactory {
         QuadPredicate<ExecutionStateData, Integer, Integer, Integer> endCondition,
         QuadFunction<ExecutionStateData, String, Integer, Integer, String> endMessageHandler
     ) {
-        return getWith(messageData, Executor::isExecuting, endCondition, endMessageHandler, NullableFunctions::isNotNull);
+        return getWith(messageData, ExecutorPredicates::isExecuting, endCondition, endMessageHandler, NullableFunctions::isNotNull);
     }
 
     static ExecutorFunctionData getWithDefaultBreakConditionEndMessageHandler(
@@ -108,7 +109,7 @@ public interface ExecutorFunctionDataFactory {
         QuadPredicate<ExecutionStateData, Integer, Integer, Integer> endCondition,
         Predicate<Data<?>> filterCondition
     ) {
-        return getWith(messageData, Executor::isExecuting, endCondition, CoreFormatter::getExecutionEndMessage, filterCondition);
+        return getWith(messageData, ExecutorPredicates::isExecuting, endCondition, CoreFormatter::getExecutionEndMessage, filterCondition);
     }
 
     static ExecutorFunctionData getWithDefaultBreakConditionEndCondition(
@@ -116,7 +117,7 @@ public interface ExecutorFunctionDataFactory {
         QuadFunction<ExecutionStateData, String, Integer, Integer, String> endMessageHandler,
         Predicate<Data<?>> filterCondition
     ) {
-        return getWith(messageData, Executor::isExecuting, CoreUtilities::isAllDone, endMessageHandler, filterCondition);
+        return getWith(messageData, ExecutorPredicates::isExecuting, CoreUtilities::isAllDone, endMessageHandler, filterCondition);
     }
 
     static ExecutorFunctionData getWithSpecificMessageDataAndBreakCondition(IGetMessage messageData, TriPredicate<Data<?>, Integer, Integer> breakCondition, ExecuteParametersData data) {
@@ -134,19 +135,19 @@ public interface ExecutorFunctionDataFactory {
     }
 
     static ExecutorFunctionData getWithSpecificMessageDataAndEndCondition(IGetMessage messageData, QuadPredicate<ExecutionStateData, Integer, Integer, Integer> endCondition) {
-        return getWith(messageData, Executor::isExecuting, endCondition, CoreFormatter::getExecutionEndMessage, NullableFunctions::isNotNull);
+        return getWith(messageData, ExecutorPredicates::isExecuting, endCondition, CoreFormatter::getExecutionEndMessage, NullableFunctions::isNotNull);
     }
 
     static ExecutorFunctionData getWithSpecificMessageDataAndEndMessageHandler(IGetMessage messageData, QuadFunction<ExecutionStateData, String, Integer, Integer, String> endMessageHandler) {
-        return getWith(messageData, Executor::isExecuting, CoreUtilities::isAllDone, endMessageHandler, NullableFunctions::isNotNull);
+        return getWith(messageData, ExecutorPredicates::isExecuting, CoreUtilities::isAllDone, endMessageHandler, NullableFunctions::isNotNull);
     }
 
     static ExecutorFunctionData getWithSpecificMessageDataAndFilterCondition(IGetMessage messageData, Predicate<Data<?>> filterCondition) {
-        return getWith(messageData, Executor::isExecuting, CoreUtilities::isAllDone, CoreFormatter::getExecutionEndMessage, filterCondition);
+        return getWith(messageData, ExecutorPredicates::isExecuting, CoreUtilities::isAllDone, CoreFormatter::getExecutionEndMessage, filterCondition);
     }
 
     static ExecutorFunctionData getWithExecuteParametersDataAndDefaultExitCondition(IGetMessage messageData, ExecuteParametersData data) {
-        return getWith(messageData, Executor::isExecuting, data.endCondition, data.messageHandler, NullableFunctions::isNotNull);
+        return getWith(messageData, ExecutorPredicates::isExecuting, data.endCondition, data.messageHandler, NullableFunctions::isNotNull);
     }
 
     static ExecutorFunctionData getWithSpecificMessageData(IGetMessage messageData) {
@@ -173,15 +174,15 @@ public interface ExecutorFunctionDataFactory {
     }
 
     static ExecutorFunctionData getWithSpecificEndCondition(QuadPredicate<ExecutionStateData, Integer, Integer, Integer> endCondition) {
-        return getWithDefaultMessageData(Executor::isExecuting, endCondition, CoreFormatter::getExecutionEndMessage, NullableFunctions::isNotNull);
+        return getWithDefaultMessageData(ExecutorPredicates::isExecuting, endCondition, CoreFormatter::getExecutionEndMessage, NullableFunctions::isNotNull);
     }
 
     static ExecutorFunctionData getWithSpecificEndMessageHandler(QuadFunction<ExecutionStateData, String, Integer, Integer, String> endMessageHandler) {
-        return getWithDefaultMessageData(Executor::isExecuting, CoreUtilities::isAllDone, endMessageHandler, NullableFunctions::isNotNull);
+        return getWithDefaultMessageData(ExecutorPredicates::isExecuting, CoreUtilities::isAllDone, endMessageHandler, NullableFunctions::isNotNull);
     }
 
     static ExecutorFunctionData getWithSpecificFilterCondition(Predicate<Data<?>> filterCondition) {
-        return getWithDefaultMessageData(Executor::isExecuting, CoreUtilities::isAllDone, CoreFormatter::getExecutionEndMessage, filterCondition);
+        return getWithDefaultMessageData(ExecutorPredicates::isExecuting, CoreUtilities::isAllDone, CoreFormatter::getExecutionEndMessage, filterCondition);
     }
 
     static ExecutorFunctionData getWithDefaultMessageDataFilterCondition(
@@ -231,22 +232,22 @@ public interface ExecutorFunctionDataFactory {
         QuadFunction<ExecutionStateData, String, Integer, Integer, String> endMessageHandler,
         Predicate<Data<?>> filterCondition
     ) {
-        return getWithDefaultMessageData(Executor::isExecuting, endCondition, endMessageHandler, filterCondition);
+        return getWithDefaultMessageData(ExecutorPredicates::isExecuting, endCondition, endMessageHandler, filterCondition);
     }
 
     static ExecutorFunctionData getWithSpecificEndConditionAndEndMessageHandler(
         QuadPredicate<ExecutionStateData, Integer, Integer, Integer> endCondition,
         QuadFunction<ExecutionStateData, String, Integer, Integer, String> endMessageHandler
     ) {
-        return getWithDefaultMessageData(Executor::isExecuting, endCondition, endMessageHandler, NullableFunctions::isNotNull);
+        return getWithDefaultMessageData(ExecutorPredicates::isExecuting, endCondition, endMessageHandler, NullableFunctions::isNotNull);
     }
 
     static ExecutorFunctionData getWithSpecificEndConditionAndFilterCondition(QuadPredicate<ExecutionStateData, Integer, Integer, Integer> endCondition, Predicate<Data<?>> filterCondition) {
-        return getWithDefaultMessageData(Executor::isExecuting, endCondition, CoreFormatter::getExecutionEndMessage, filterCondition);
+        return getWithDefaultMessageData(ExecutorPredicates::isExecuting, endCondition, CoreFormatter::getExecutionEndMessage, filterCondition);
     }
 
     static ExecutorFunctionData getWithSpecificEndMessageHandlerAndFilterCondition(QuadFunction<ExecutionStateData, String, Integer, Integer, String> endMessageHandler, Predicate<Data<?>> filterCondition) {
-        return getWithDefaultMessageData(Executor::isExecuting, CoreUtilities::isAllDone, endMessageHandler, filterCondition);
+        return getWithDefaultMessageData(ExecutorPredicates::isExecuting, CoreUtilities::isAllDone, endMessageHandler, filterCondition);
     }
 
     static ExecutorFunctionData getWithDefaultExitCondition(IGetMessage messageData, QuadFunction<ExecutionStateData, String, Integer, Integer, String> endMessageHandler) {

@@ -2,6 +2,7 @@ package com.github.karsaii.core.extensions.namespaces;
 
 import com.github.karsaii.core.constants.CardinalityDefaults;
 import com.github.karsaii.core.extensions.interfaces.functional.QuadPredicate;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
 import com.github.karsaii.core.namespaces.validators.DataValidators;
 import com.github.karsaii.core.records.CardinalityData;
 import com.github.karsaii.core.records.Data;
@@ -15,6 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface CoreUtilities {
     static boolean isEqual(Object a, Object b) {
@@ -83,6 +87,30 @@ public interface CoreUtilities {
     @SafeVarargs
     static <T> boolean areAll(Predicate<T> condition, T... objects) {
         return are(condition, CardinalityDefaults.all, objects);
+    }
+
+    @SafeVarargs
+    static <T> boolean areAll(Function<T, String> condition, T... objects) {
+        if (NullableFunctions.isNull(condition) || ArrayFunctions.isNullOrEmptyArray(objects)) {
+            return false;
+        }
+
+        final var conditionData = CardinalityDefaults.all;
+        final var finalValue = conditionData.finalValue;
+        final var guardValue = conditionData.guardValue;
+        final var length = objects.length;
+        var index = 0;
+        if (length == 1) {
+            return isNotBlank(condition.apply(objects[index])) ? guardValue : finalValue;
+        }
+
+        for(; index < length; ++index) {
+            if (isNotBlank(condition.apply(objects[index]))) {
+                return guardValue;
+            }
+        }
+
+        return finalValue;
     }
 
     @SafeVarargs
