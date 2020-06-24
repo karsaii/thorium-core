@@ -1,7 +1,7 @@
 package com.github.karsaii.core.namespaces;
 
 import com.github.karsaii.core.constants.SystemIdentityConstants;
-import com.github.karsaii.core.extensions.namespaces.BasicPredicateFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,23 +1,19 @@
 package com.github.karsaii.core.extensions;
 
 import com.github.karsaii.core.extensions.interfaces.IExtendedList;
-import com.github.karsaii.core.extensions.namespaces.AmountPredicatesFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.AmountPredicatesFunctions;
 import com.github.karsaii.core.extensions.namespaces.EmptiableCollectionFunctions;
 import com.github.karsaii.core.extensions.namespaces.EmptiableFunctions;
 import com.github.karsaii.core.extensions.namespaces.ExtendedListFunctions;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.extensions.namespaces.SizableFunctions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
-import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -28,38 +24,9 @@ public class DecoratedList<T> implements IExtendedList<T> {
     private final String type;
     public final List<T> list;
 
-    public DecoratedList() {
-        this.list = new ArrayList<>();
-        this.type = null;
-    }
-
-    private DecoratedList(List<T> list, String type) {
+    public DecoratedList(List<T> list, String type) {
         this.list = list;
         this.type = type;
-    }
-
-    public DecoratedList(List<T> list) {
-        this(list, Object.class.getTypeName());
-    }
-
-    public DecoratedList(List<T> list, Class<T> type) {
-        this(list, type.getTypeName());
-    }
-
-    public DecoratedList(T[] list, Class<T> type) {
-        this(Arrays.asList(list), type.getTypeName());
-    }
-
-    public DecoratedList(Set<T> list, Class<T> type) {
-        this(new ArrayList<T>(list), type.getTypeName());
-    }
-
-    public DecoratedList(Class<T> type) {
-        this(new ArrayList<>(), type.getTypeName());
-    }
-
-    public DecoratedList(T element) {
-        this(Collections.singletonList(element));
     }
 
     @Override
@@ -319,11 +286,17 @@ public class DecoratedList<T> implements IExtendedList<T> {
 
     @Override
     public boolean equals(Object o) {
-        return isNotNull() ? list.equals(o) : NullableFunctions.isNull(o);
+        if (this == o) return true;
+        if (NullableFunctions.isNull(o) || (getClass() != o.getClass()) || isNull()) return false;
+        final var that = (DecoratedList<?>) o;
+        return Objects.equals(type, that.type) && Objects.equals(list, that.list);
     }
 
     public String getType() {
         return type;
     }
 
+    public DecoratedList<T> get() {
+        return this;
+    }
 }

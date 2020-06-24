@@ -12,7 +12,7 @@ import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.is
 public interface ExecutionResultDataFactory {
     static <T> ExecutionResultData<T> getWith(ExecutionStateData data, T object) {
         final var lData = isNotNull(data) ? data : ExecutionStateDataFactory.getWithDefaults();
-        return new ExecutionResultData<>(data, object);
+        return new ExecutionResultData<>(lData, object);
     }
 
     static <T> ExecutionResultData<T> getWith(Map<String, Data<?>> map, List<Integer> indices, T object) {

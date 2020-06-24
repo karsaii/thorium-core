@@ -10,4 +10,8 @@ public interface StepFactory {
     static <DependencyType, ReturnType> DataSupplier<ReturnType> step(Function<DependencyType, Data<ReturnType>> function, DependencyType dependency) {
         return new ExecutionStepData<>(function, dependency);
     }
+
+    static <DependencyType, ReturnType> DataSupplier<ReturnType> step(Function<DependencyType, Data<ReturnType>> function) {
+        return new ExecutionStepData<>(function, null);
+    }
 }

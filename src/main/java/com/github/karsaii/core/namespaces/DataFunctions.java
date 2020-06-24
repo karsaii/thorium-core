@@ -1,8 +1,9 @@
 package com.github.karsaii.core.namespaces;
 
-import com.github.karsaii.core.extensions.namespaces.BasicPredicateFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
 import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.records.Data;
+import com.github.karsaii.core.records.MethodMessageData;
 import org.apache.commons.lang3.ArrayUtils;
 import com.github.karsaii.core.constants.CoreConstants;
 
@@ -65,5 +66,17 @@ public interface DataFunctions {
         if (isException(exception)) {
             throw exception;
         }
+    }
+
+    static <T> T getObject(Data<T> data) {
+        return data.object;
+    }
+
+    static <T> boolean getStatus(Data<T> data) {
+        return data.status;
+    }
+
+    static <T> MethodMessageData getMethodMessageData(Data<T> data) {
+        return data.message;
     }
 }

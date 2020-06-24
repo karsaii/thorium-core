@@ -3,7 +3,7 @@ package com.github.karsaii.core.namespaces.validators;
 import com.github.karsaii.core.constants.CommandRangeDataConstants;
 import com.github.karsaii.core.extensions.DecoratedList;
 import com.github.karsaii.core.extensions.interfaces.IEmptiable;
-import com.github.karsaii.core.extensions.namespaces.BasicPredicateFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
 import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.extensions.namespaces.EmptiableFunctions;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
@@ -36,7 +36,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface CoreFormatter {
-
     static String getNamedErrorMessageOrEmpty(String name, String message) {
         final var nameof = isNotBlank(name) ? name : "getNamedErrorMessageOrEmpty: (Name was empty.) ";
         return isNotBlank(message) ? nameof + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message : CoreFormatterConstants.EMPTY;
@@ -50,6 +49,10 @@ public interface CoreFormatter {
         return condition ? parameterName + " parameter was " + descriptor + CoreFormatterConstants.END_LINE : CoreFormatterConstants.EMPTY;
     }
 
+    private static String isParameterNotMessage(boolean condition, String parameterName, String descriptor) {
+        return !condition ? parameterName + " parameter wasn't " + descriptor + CoreFormatterConstants.END_LINE : CoreFormatterConstants.EMPTY;
+    }
+
     static <T> String isNullMessageWithName(T object, String parameterName) {
         return isParameterMessage(NullableFunctions.isNull(object), parameterName, "null");
     }
@@ -59,7 +62,7 @@ public interface CoreFormatter {
     }
 
     static <T> String isEmptyMessage(T[] object) {
-        var message = isNullMessageWithName(object, "Objeect");
+        var message = isNullMessageWithName(object, "Object");
         if (isBlank(message)) {
             message += object.length < 1 ? "Object is empty" : CoreFormatterConstants.EMPTY;
         }
@@ -77,11 +80,24 @@ public interface CoreFormatter {
     }
 
     static String isInvalidOrFalseMessage(Data data) {
-        return isInvalidOrFalseMessageWithName(data, "data");
+        return isInvalidOrFalseMessageWithName(data, "Data");
     }
 
     static String isInvalidOrFalseMessageE(ExecutionResultData data) {
         return isNullMessageWithName(data.result, "Result Object");
+    }
+
+    private static String isValidNonFalseMessageWithName(Data data, String parameterName) {
+        var message = isParameterNotMessage(isValidNonFalse(data), parameterName, "valid, non-false data");
+        if (isNotBlank(message)) {
+            message += data.message;
+        }
+
+        return getNamedErrorMessageOrEmpty("isValidNonFalseMessageWithName: ", message);
+    }
+
+    private static String isValidNonFalseMessage(Data data) {
+        return isInvalidOrFalseMessageWithName(data, "Data");
     }
 
     static String isFalseMessageWithName(Data data, String parameterName) {
@@ -455,6 +471,9 @@ public interface CoreFormatter {
         return getNamedErrorMessageOrEmpty("isNullOrEmptyListMessage: ", message);
     }
 
+    static String isNullOrEmptyListMessage(List<?> list) {
+        return isNullOrEmptyListMessage(list, "List");
+    }
 
     static <T> String getListEmptyMessage(DecoratedList<T> list, String parameterName) {
         final var name = isBlank(parameterName) ? "List" : parameterName;
@@ -546,5 +565,51 @@ public interface CoreFormatter {
         }
 
         return isNotBlank(message) ? "isEqualMessage: " + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message : CoreFormatterConstants.EMPTY;
+    }
+
+    static String isEqualMessage(Object left, Object right) {
+        return isEqualMessage(left, CoreFormatterConstants.EMPTY, right, CoreFormatterConstants.EMPTY);
+    }
+
+    static String getAreValidPadParametersMessage(String value, String parameterName, String pad) {
+        return getNamedErrorMessageOrEmpty("getAreValidPadParametersMessage: ",  isNullMessage(value) + isNullMessageWithName(parameterName, "Parameter name value") + isNullMessageWithName(pad, "Pad value"));
+    }
+
+    private static String notPaddedCommon(String location, String pad) {
+        return CoreFormatterConstants.VALUE_DOESNT + location + CoreFormatterConstants.WITH_PAD_VALUE + " \"" + pad + "\"" + CoreFormatterConstants.END_LINE;
+    }
+
+    static String isStartPaddedWith(String value, String parameterName, String pad) {
+        var message = getAreValidPadParametersMessage(value, parameterName, pad);
+        if (isBlank(message)) {
+            message += !value.startsWith(pad) ? parameterName + " " + notPaddedCommon(CoreFormatterConstants.START, pad) : CoreFormatterConstants.EMPTY;
+        }
+
+        return getNamedErrorMessageOrEmpty("isStartPaddedWith: ", message);
+    }
+
+    static String isEndPaddedWith(String value, String parameterName, String pad) {
+        var message = getAreValidPadParametersMessage(value, parameterName, pad);
+        if (isBlank(message)) {
+            message += !value.endsWith(pad) ? parameterName + " " + notPaddedCommon(CoreFormatterConstants.END, pad) : CoreFormatterConstants.EMPTY;
+        }
+
+        return getNamedErrorMessageOrEmpty("isEndPaddedWith: ", message);
+    }
+
+    static String isPadded(String value, String parameterName, String pad) {
+        var message = getAreValidPadParametersMessage(value, parameterName, pad);
+        if (isBlank(message)) {
+            message += isBlankMessageWithName(value, parameterName);
+        }
+
+        if (isBlank(message)) {
+            message += (
+                isStartPaddedWith(value, parameterName, pad) +
+                isEndPaddedWith(value, parameterName, pad)
+            );
+        }
+
+        return getNamedErrorMessageOrEmpty("isPadded: ", message);
     }
 }

@@ -7,6 +7,7 @@ import com.github.karsaii.core.extensions.interfaces.functional.TriPredicate;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupplier;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.IGetMessage;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
+import com.github.karsaii.core.namespaces.DataSupplierExecutionFunctions;
 import com.github.karsaii.core.namespaces.DataSupplierFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutorFunctionDataFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutionParametersDataFactory;
@@ -27,7 +28,6 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
-import static com.github.karsaii.core.namespaces.DependencyExecutionFunctions.ifDependency;
 
 public interface StepExecutor {
     private static <ReturnType, ParameterReturnType> DataSupplier<ReturnType> executeGuardCore(
@@ -36,7 +36,7 @@ public interface StepExecutor {
         Data<ReturnType> negative,
         int stepLength
     ) {
-        return ifDependency("executeGuardCore", CoreFormatter.getCommandAmountRangeErrorMessage(stepLength, execution.range), executionChain, negative);
+        return DataSupplierExecutionFunctions.ifDependency("executeGuardCore", CoreFormatter.getCommandAmountRangeErrorMessage(stepLength, execution.range), executionChain, negative);
     }
 
     @SafeVarargs
@@ -45,7 +45,9 @@ public interface StepExecutor {
         ExecutionStateData stateData,
         Function<Void, Data<?>>... steps
     ) {
-        final var negative = DataFactoryFunctions.getWithMessage(ExecutionResultDataFactory.getWithDefaultState((ReturnType) CoreConstants.STOCK_OBJECT), false, CoreFormatterConstants.EMPTY);
+        @SuppressWarnings("unchecked")
+        final var negativeReturnObject = (ReturnType) CoreConstants.STOCK_OBJECT;
+        final var negative = DataFactoryFunctions.getInvalidWithNameAndMessage(ExecutionResultDataFactory.getWithDefaultState(negativeReturnObject), "execute", CoreFormatterConstants.EMPTY);
         return executeGuardCore(execution, DataSupplierFactory.get(execution.executor.apply(execution.functionData, stateData, steps)), negative, steps.length);
     }
 
@@ -65,7 +67,9 @@ public interface StepExecutor {
     }
 
     static <ReturnType> DataSupplier<ReturnType> execute(ExecutionParametersData<Function<Void, Data<?>>, DataSupplier<ExecutionResultData<ReturnType>>> execution, DataSupplier<?>... steps) {
-        final var negative = DataFactoryFunctions.getWithMessage((ReturnType) CoreConstants.STOCK_OBJECT, false, CoreFormatterConstants.EMPTY);
+        @SuppressWarnings("unchecked")
+        final var negativeReturnObject = (ReturnType) CoreConstants.STOCK_OBJECT;
+        final var negative = DataFactoryFunctions.getInvalidWithNameAndMessage(negativeReturnObject, "execute", CoreFormatterConstants.EMPTY);
         return executeGuardCore(execution, executeData(execution, steps), negative, steps.length);
     }
 

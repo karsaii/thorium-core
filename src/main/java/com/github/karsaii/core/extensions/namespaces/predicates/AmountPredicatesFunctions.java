@@ -1,9 +1,11 @@
-package com.github.karsaii.core.extensions.namespaces;
+package com.github.karsaii.core.extensions.namespaces.predicates;
+
+import com.github.karsaii.core.extensions.namespaces.SizableFunctions;
 
 import java.util.function.Supplier;
 
-import static com.github.karsaii.core.extensions.namespaces.BasicPredicateFunctions.isBiggerThan;
-import static com.github.karsaii.core.extensions.namespaces.BasicPredicateFunctions.isNonNegative;
+import static com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions.isBiggerThan;
+import static com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions.isNonNegative;
 import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
 import static com.github.karsaii.core.extensions.namespaces.SizableFunctions.isSizeEqualTo;
 
