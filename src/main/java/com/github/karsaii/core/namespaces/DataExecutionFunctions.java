@@ -37,6 +37,31 @@ public interface DataExecutionFunctions {
         };
     }
 
+    static <DependencyType, ParameterType, ReturnType> Function<DependencyType, Data<ReturnType>> conditionalUnwrapChain(
+        Predicate<Data<ParameterType>> guard,
+        Function<DependencyType, Data<ParameterType>> dependency,
+        Function<ParameterType, Data<ReturnType>> positive,
+        Data<ReturnType> negative
+    ) {
+        return d -> {
+            final var positiveDependency = dependency.apply(d);
+            return guard.test(positiveDependency) ? positive.apply(positiveDependency.object) : negative;
+        };
+    }
+
+    static <DependencyType, ParameterType, ReturnType> Function<DependencyType, Data<ReturnType>> conditionalUnwrapChain(
+        Function<Data<ParameterType>, String> guard,
+        Function<DependencyType, Data<ParameterType>> dependency,
+        Function<ParameterType, Data<ReturnType>> positive,
+        Data<ReturnType> negative
+    ) {
+        return d -> {
+            final var positiveDependency = dependency.apply(d);
+            final var guardMessage = guard.apply(positiveDependency);
+            return isBlank(guardMessage) ? positive.apply(positiveDependency.object) : prependMessage(negative, "conditionalChain", "Dependency parameter failed the guard" + CoreFormatterConstants.COLON_SPACE + guardMessage);
+        };
+    }
+
     static <DependencyType, ParameterType, ReturnType> Function<DependencyType, Data<ReturnType>> validChain(Function<DependencyType, Data<ParameterType>> dependency, Function<Data<ParameterType>, Data<ReturnType>> positive, Data<ReturnType> negative) {
         return conditionalChain(CoreFormatter::isInvalidOrFalseMessage, dependency, positive, negative);
     }

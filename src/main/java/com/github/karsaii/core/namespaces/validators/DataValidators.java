@@ -1,9 +1,13 @@
 package com.github.karsaii.core.namespaces.validators;
 
 import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
+import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.executor.ExecutionResultData;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
 import static com.github.karsaii.core.namespaces.validators.CoreFormatter.isFalseMessage;
@@ -30,6 +34,26 @@ public interface DataValidators {
 
     static boolean isValidNonFalse(Data<?> data) {
         return isValid(data) && CoreUtilities.isTrue(data.status);
+    }
+
+    static boolean isValidNonFalseAndNonNullContained(Data<?> data) {
+        return isValidNonFalse(data) && NullableFunctions.isNotNull(data.object);
+    }
+
+    static <T> boolean isValidNonFalseAndValidContained(Data<T> data, Predicate<T> validator) {
+        return isValidNonFalse(data) && validator.test(data.object);
+    }
+
+    static <T> boolean isValidNonFalseAndValidContained(Data<T> data, Function<T, String> validator) {
+        return isValidNonFalse(data) && isNotBlank(validator.apply(data.object));
+    }
+
+    static <T> Predicate<Data<T>> isValidNonFalseAndValidContains(Function<T, String> validator) {
+        return data -> isValidNonFalseAndValidContained(data, validator);
+    }
+
+    static <T> Predicate<Data<T>> isValidNonFalseAndValidContains(Predicate<T> validator) {
+        return data -> isValidNonFalseAndValidContained(data, validator);
     }
 
     static boolean isInvalidOrFalse(Data<?> data) {
