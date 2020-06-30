@@ -462,7 +462,7 @@ public interface CoreFormatter {
         return exception -> areAnyNull(data, exception) ? getInvokeMethodParameterizedMessage(data, exception) : "Data or exception" + CoreFormatterConstants.WAS_NULL;
     }
 
-    static String isNullOrEmptyListMessage(List<?> list, String parameterName) {
+    static String isNullOrEmptyListMessageWithName(List<?> list, String parameterName) {
         var message = isNullMessageWithName(list, parameterName);
         final var name = (isBlank(parameterName) ? "List" : parameterName);
         if (isBlank(message)) {
@@ -473,7 +473,7 @@ public interface CoreFormatter {
     }
 
     static String isNullOrEmptyListMessage(List<?> list) {
-        return isNullOrEmptyListMessage(list, "List");
+        return isNullOrEmptyListMessageWithName(list, "List");
     }
 
     static <T> String getListEmptyMessage(DecoratedList<T> list, String parameterName) {
