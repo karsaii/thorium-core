@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.areAnyBlank;
 import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.areAnyNull;
@@ -611,5 +612,34 @@ public interface CoreFormatter {
         }
 
         return getNamedErrorMessageOrEmpty("isPadded: ", message);
+    }
+
+    static <T> String getValidNonFalseAndValidContainedMessage(Data<T> data, Function<T, String> validator) {
+        var message = isInvalidOrFalseMessage(data);
+        if (isBlank(message)) {
+            final var validatorMessage = validator.apply(data.object);
+            if (isNotBlank(validatorMessage)) {
+                message += validator.apply(data.object);
+            }
+        }
+
+        return getNamedErrorMessageOrEmpty("getValidNonFalseAndValidContainedMessage: ", message);
+    }
+
+    static <T> String getValidNonFalseAndValidContainedMessage(Data<T> data, Predicate<T> validator) {
+        var message = isInvalidOrFalseMessage(data);
+        if (isBlank(message)) {
+            message += isFalseMessageWithName(validator.test(data.object), "Validator test");
+        }
+
+        return getNamedErrorMessageOrEmpty("getValidNonFalseAndValidContainedMessage: ", message);
+    }
+
+    static <T> Function<Data<T>, String> isValidNonFalseAndValidContains(Function<T, String> validator) {
+        return data -> getValidNonFalseAndValidContainedMessage(data, validator);
+    }
+
+    static <T> Function<Data<T>, String> isValidNonFalseAndValidContains(Predicate<T> validator) {
+        return data -> getValidNonFalseAndValidContainedMessage(data, validator);
     }
 }
