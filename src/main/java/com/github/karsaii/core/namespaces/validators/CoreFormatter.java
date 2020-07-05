@@ -666,7 +666,7 @@ public interface CoreFormatter {
         return value -> CoreFormatter.isEqualMessage(value, expected);
     }
 
-    static <T, U, V extends DecoratedList<U>> String isValidTypedNonEmptyListMessage(Data<V> listData, Class<U> clazz) {
+    static <T, U> String isValidTypedNonEmptyListMessage(Data<DecoratedList<?>> listData, Class<U> clazz) {
         var message = isNullMessage(clazz);
         if (isBlank(message)) {
             message += getValidNonFalseAndValidContainedMessage(
@@ -682,7 +682,7 @@ public interface CoreFormatter {
         return getNamedErrorMessageOrEmpty("isOfTypeNonEmptyMessage: ", message);
     }
 
-    static <T, U, V extends DecoratedList<U>> Function<Data<V>, String> isValidTypedNonEmptyListMessage(Class<U> clazz) {
+    static <T, U> Function<Data<DecoratedList<?>>, String> isValidTypedNonEmptyListMessage(Class<U> clazz) {
         return list -> isValidTypedNonEmptyListMessage(list, clazz);
     }
 
