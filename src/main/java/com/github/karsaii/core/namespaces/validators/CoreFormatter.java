@@ -487,7 +487,7 @@ public interface CoreFormatter {
         return getNamedErrorMessageOrEmpty("getContainsIndexMessageWithName: ", message);
     }
 
-    static String getContainsIndexMessageWithName(List<?> list, int index) {
+    static String getContainsIndexMessage(List<?> list, int index) {
         return getContainsIndexMessageWithName(list, index, "List");
     }
 
