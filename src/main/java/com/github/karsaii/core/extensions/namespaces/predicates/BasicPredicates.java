@@ -2,7 +2,7 @@ package com.github.karsaii.core.extensions.namespaces.predicates;
 
 import java.util.Objects;
 
-public interface BasicPredicateFunctions {
+public interface BasicPredicates {
     static boolean isNonNegative(int value) {
         return isBiggerThan(value, -1);
     }
@@ -25,5 +25,13 @@ public interface BasicPredicateFunctions {
 
     static boolean isZero(int value) {
         return Objects.equals(value, 0);
+    }
+
+    static boolean isNonZero(int value) {
+        return !isZero(value);
+    }
+
+    static boolean isZeroOrNonPositive(int value) {
+        return isSmallerThan(value, 1);
     }
 }

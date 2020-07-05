@@ -1,27 +1,24 @@
 package com.github.karsaii.core.namespaces.validators;
 
 import com.github.karsaii.core.records.MethodMessageData;
-import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 
-import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
+import static com.github.karsaii.core.namespaces.validators.CoreFormatter.getNamedErrorMessageOrEmpty;
+import static com.github.karsaii.core.namespaces.validators.CoreFormatter.isBlankMessageWithName;
+import static com.github.karsaii.core.namespaces.validators.CoreFormatter.isNullMessageWithName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface MethodMessageDataValidators {
-    static boolean isValid(MethodMessageData data) {
-        return isNotNull(data) && isNotBlank(data.message) && isNotNull(data.nameof);
-    }
 
     static String isInvalidMessage(MethodMessageData data) {
         final var baseName = "Data";
-        var message = CoreFormatter.isNullMessageWithName(data, baseName);
+        var message = isNullMessageWithName(data, baseName);
         if (isBlank(message)) {
-            message += CoreFormatter.isBlankMessageWithName(data.message, baseName + " Message");
+            message += (
+                isBlankMessageWithName(data.message, baseName + " Message") +
+                isBlankMessageWithName(data.nameof, baseName + " Name of")
+            );
         }
 
-        final var nameParameterDescriptor = baseName + " Name of source";
-        message += isNotBlank(message) ? CoreFormatter.isBlankMessageWithName(data.nameof, nameParameterDescriptor) : CoreFormatter.isNullMessageWithName(data.nameof, nameParameterDescriptor);
-
-        return isNotBlank(message) ? "isInvalidMessage: " + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message : CoreFormatterConstants.EMPTY;
+        return  getNamedErrorMessageOrEmpty("isInvalidMessage: ", message);
     }
 }

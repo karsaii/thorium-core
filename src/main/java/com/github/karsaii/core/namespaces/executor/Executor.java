@@ -15,7 +15,7 @@ import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 
 import java.util.function.Function;
 
-import static com.github.karsaii.core.namespaces.validators.DataValidators.isInvalidOrFalse;
+import static com.github.karsaii.core.namespaces.predicates.DataPredicates.isInvalidOrFalse;
 
 public interface Executor {
     private static <DependencyType, ReturnType> Data<ExecutionResultData<ReturnType>> executeCore(

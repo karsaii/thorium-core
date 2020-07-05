@@ -1,8 +1,7 @@
 package com.github.karsaii.core.extensions;
 
 import com.github.karsaii.core.extensions.interfaces.IExtendedList;
-import com.github.karsaii.core.extensions.namespaces.predicates.AmountPredicatesFunctions;
-import com.github.karsaii.core.extensions.namespaces.EmptiableCollectionFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.AmountPredicates;
 import com.github.karsaii.core.extensions.namespaces.EmptiableFunctions;
 import com.github.karsaii.core.extensions.namespaces.ExtendedListFunctions;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
@@ -93,7 +92,7 @@ public class DecoratedList<T> implements IExtendedList<T> {
     }
 
     public boolean addAllNullSafe(int index, Collection<? extends T> c) {
-        return AmountPredicatesFunctions.hasIndex(c::size, index) && ExtendedListFunctions.addAllCondition(list, c) && list.addAll(index, c);
+        return AmountPredicates.hasIndex(c::size, index) && ExtendedListFunctions.addAllCondition(list, c) && list.addAll(index, c);
     }
 
     @Override
@@ -218,7 +217,7 @@ public class DecoratedList<T> implements IExtendedList<T> {
 
     @Override
     public boolean hasOnlyNonNullValues() {
-        return EmptiableCollectionFunctions.hasOnlyNonNullValues(list);
+        return EmptiableFunctions.hasOnlyNonNullValues(list);
     }
 
     @Override
@@ -261,27 +260,27 @@ public class DecoratedList<T> implements IExtendedList<T> {
 
     @Override
     public boolean isSingle() {
-        return AmountPredicatesFunctions.isSingle(list::size);
+        return AmountPredicates.isSingle(list::size);
     }
 
     @Override
     public boolean isMany() {
-        return AmountPredicatesFunctions.isMany(list::size);
+        return AmountPredicates.isMany(list::size);
     }
 
     @Override
     public boolean hasMoreThan(int amount) {
-        return AmountPredicatesFunctions.hasMoreThan(list::size, amount);
+        return AmountPredicates.hasMoreThan(list::size, amount);
     }
 
     @Override
     public boolean hasAtleast(int amount) {
-        return AmountPredicatesFunctions.hasAtleast(list::size, amount);
+        return AmountPredicates.hasAtleast(list::size, amount);
     }
 
     @Override
     public boolean hasIndex(int index) {
-        return AmountPredicatesFunctions.hasIndex(list::size, index);
+        return AmountPredicates.hasIndex(list::size, index);
     }
 
     @Override

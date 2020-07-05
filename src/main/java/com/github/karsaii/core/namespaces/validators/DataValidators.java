@@ -1,86 +1,12 @@
 package com.github.karsaii.core.namespaces.validators;
 
-import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
-import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.records.Data;
-import com.github.karsaii.core.records.executor.ExecutionResultData;
-import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 
-import java.util.function.Function;
-import java.util.function.Predicate;
-
-import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
+import static com.github.karsaii.core.namespaces.validators.CoreFormatter.getNamedErrorMessageOrEmpty;
 import static com.github.karsaii.core.namespaces.validators.CoreFormatter.isFalseMessage;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface DataValidators {
-    static boolean isInitialized(Data<?> data) {
-        return isNotNull(data);
-    }
-
-    static boolean isValid(Data<?> data) {
-        return (
-            isInitialized(data) &&
-            isNotNull(data.exception) &&
-            isNotBlank(data.exceptionMessage) &&
-            MethodMessageDataValidators.isValid(data.message)
-        );
-    }
-
-    static boolean isInvalid(Data<?> data) {
-        return !isValid(data);
-    }
-
-    static boolean isValidNonFalse(Data<?> data) {
-        return isValid(data) && CoreUtilities.isTrue(data.status);
-    }
-
-    static boolean isValidNonFalseAndNonNullContained(Data<?> data) {
-        return isValidNonFalse(data) && NullableFunctions.isNotNull(data.object);
-    }
-
-    static <T> boolean isValidNonFalseAndValidContained(Data<T> data, Predicate<T> validator) {
-        return isValidNonFalse(data) && validator.test(data.object);
-    }
-
-    static <T> boolean isValidNonFalseAndValidContained(Data<T> data, Function<T, String> validator) {
-        return isValidNonFalse(data) && isNotBlank(validator.apply(data.object));
-    }
-
-    static <T> Predicate<Data<T>> isValidNonFalseAndValidContains(Function<T, String> validator) {
-        return data -> isValidNonFalseAndValidContained(data, validator);
-    }
-
-    static <T> Predicate<Data<T>> isValidNonFalseAndValidContains(Predicate<T> validator) {
-        return data -> isValidNonFalseAndValidContained(data, validator);
-    }
-
-    static boolean isInvalidOrFalse(Data<?> data) {
-        return !isValidNonFalse(data);
-    }
-
-
-    static boolean isExecutionValidNonFalse(Data<ExecutionResultData<Object>> data) {
-        return isValid(data) && CoreUtilities.isTrue(data.status);
-    }
-
-    static boolean isExecutionInvalidOrFalse(Data<ExecutionResultData<Object>> data) {
-        return !isValidNonFalse(data);
-    }
-
-    static boolean isFalse(Data<?> data) {
-        return isNotNull(data) && CoreUtilities.isFalse(data.status);
-    }
-
-    static boolean isTrue(Data<?> data) {
-        return isNotNull(data) && CoreUtilities.isTrue(data.status);
-    }
-
-    static boolean isValidAndFalse(Data<?> data) {
-        return isValid(data) && CoreUtilities.isFalse(data.status);
-    }
-
     private static String isInvalidParametersMessage(Data<?> data) {
         final var baseName = "Data";
         return (
@@ -97,7 +23,7 @@ public interface DataValidators {
             message += isInvalidParametersMessage(data);
         }
 
-        return isNotBlank(message) ? "isInvalidMessage: " + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message : CoreFormatterConstants.EMPTY;
+        return getNamedErrorMessageOrEmpty("isInvalidMessage: ", message);
     }
 
     static String isInvalidOrFalseMessage(Data<?> data) {
@@ -106,6 +32,6 @@ public interface DataValidators {
             message += isFalseMessage(data);
         }
 
-        return isNotBlank(message) ? "isInvalidOrFalseMessage: " + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message : CoreFormatterConstants.EMPTY;
+        return getNamedErrorMessageOrEmpty("isInvalidOrFalseMessage: ", message);
     }
 }

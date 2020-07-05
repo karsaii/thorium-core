@@ -1,7 +1,7 @@
 package com.github.karsaii.core.extensions.namespaces;
 
-import com.github.karsaii.core.extensions.namespaces.predicates.AmountPredicatesFunctions;
-import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.AmountPredicates;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
 import com.github.karsaii.core.extensions.records.ExtensionListData;
 import com.github.karsaii.core.extensions.constants.IExtendedListConstants;
 
@@ -17,7 +17,7 @@ public interface ExtendedListFunctions {
     }
 
     static <T> boolean addAllCondition(List<T> list, Collection<? extends T> c) {
-        return NullableFunctions.isNotNull(list) && EmptiableCollectionFunctions.hasOnlyNonNullValues(c);
+        return NullableFunctions.isNotNull(list) && EmptiableFunctions.hasOnlyNonNullValues(c);
     }
 
     static <T> T first(List<T> list) {
@@ -26,7 +26,7 @@ public interface ExtendedListFunctions {
 
     static <T> int lastIndex(List<T> list) {
         final var size = SizableFunctions.size(list::size);
-        return BasicPredicateFunctions.isPositiveNonZero(size) ? size - 1 : IExtendedListConstants.NOT_IN_LIST_INDEX;
+        return BasicPredicates.isPositiveNonZero(size) ? size - 1 : IExtendedListConstants.NOT_IN_LIST_INDEX;
     }
 
     static <T> int secondLastIndex(List<T> list) {
@@ -39,11 +39,11 @@ public interface ExtendedListFunctions {
 
     static <T> List<T> tail(List<T> list) {
         final var listData = new ExtensionListData<T>(ExtendedListFunctions::last, ExtendedListFunctions::lastIndex, IExtendedListConstants.SECOND_INDEX);
-        return conditionalSublist(listData, CardinalitiesFunctions.invertBoolean(AmountPredicatesFunctions::isDouble), list);
+        return conditionalSublist(listData, CardinalitiesFunctions.invertBoolean(AmountPredicates::isDouble), list);
     }
 
     static <T> List<T> initials(List<T> list) {
         final var listData = new ExtensionListData<T>(ExtendedListFunctions::first, ExtendedListFunctions::secondLastIndex, IExtendedListConstants.FIRST_INDEX);
-        return conditionalSublist(listData, AmountPredicatesFunctions::isAtleastDouble, list);
+        return conditionalSublist(listData, AmountPredicates::isAtleastDouble, list);
     }
 }

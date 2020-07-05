@@ -4,7 +4,7 @@ import com.github.karsaii.core.exceptions.WaitTimeoutException;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.executor.step.StepExecutor;
 import com.github.karsaii.core.namespaces.executor.step.StepFactory;
-import com.github.karsaii.core.namespaces.validators.DataValidators;
+import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.namespaces.wait.Wait;
 import com.github.karsaii.core.namespaces.wait.WaitTimeDataFactory;
 import com.github.karsaii.core.records.WaitData;
@@ -41,7 +41,7 @@ public class WaitTests {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount1() == 3, "test1", "Step was okay"), null);
         final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "StringStep was oookay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
-        final var waitData = new WaitData<>(steps, DataValidators::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
+        final var waitData = new WaitData<>(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
 
         Assertions.assertThrows(WaitTimeoutException.class, () -> Wait.repeatWithDefaultState(waitData));
     }
@@ -52,7 +52,7 @@ public class WaitTests {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount2() == 3, "test1", "Step was okay"), null);
         final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "StringStep was oookay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", trueStringStep, countStep);
-        final var waitData = new WaitData<>(steps, DataValidators::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
+        final var waitData = new WaitData<>(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
 
         Assertions.assertThrows(WaitTimeoutException.class, () -> Wait.repeatWithDefaultState(waitData));
     }
@@ -64,7 +64,7 @@ public class WaitTests {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount3() == 3, "test1", "Step was okay"), null);
         final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test2", "StringStep was oookay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
-        final var waitData = new WaitData<>(steps, DataValidators::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 10000));
+        final var waitData = new WaitData<>(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 10000));
         final var result = Wait.repeatWithDefaultState(waitData);
 
         Assertions.assertTrue(result.status, result.message.toString());
@@ -76,7 +76,7 @@ public class WaitTests {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount4() < -1, "test1", "Step was okay"), null);
         final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "StringStep was oookay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
-        final var waitData = new WaitData<>(steps, DataValidators::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
+        final var waitData = new WaitData<>(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
 
         Assertions.assertThrows(WaitTimeoutException.class, () -> Wait.repeatWithDefaultState(waitData));
     }
@@ -86,7 +86,7 @@ public class WaitTests {
     void singleOneAlwaysFailsTest() {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount4() < -1, "test1", "Step was okay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep);
-        final var waitData = new WaitData<>(steps, DataValidators::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
+        final var waitData = new WaitData<>(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
 
         Assertions.assertThrows(WaitTimeoutException.class, () -> Wait.repeatWithDefaultState(waitData));
     }

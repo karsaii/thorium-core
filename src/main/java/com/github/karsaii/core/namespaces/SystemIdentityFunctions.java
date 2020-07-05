@@ -1,7 +1,7 @@
 package com.github.karsaii.core.namespaces;
 
 import com.github.karsaii.core.constants.SystemIdentityConstants;
-import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public interface SystemIdentityFunctions {
                 final var process = processBuilder.start();
                 process.waitFor();
 
-                if (BasicPredicateFunctions.isZero(process.exitValue())) {
+                if (BasicPredicates.isZero(process.exitValue())) {
                     try (
                         final var is = process.getInputStream();
                         final var isr = new InputStreamReader(is);

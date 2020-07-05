@@ -2,8 +2,9 @@ package com.github.karsaii.core.extensions.namespaces;
 
 import com.github.karsaii.core.constants.CardinalityDefaults;
 import com.github.karsaii.core.extensions.interfaces.functional.QuadPredicate;
-import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
-import com.github.karsaii.core.namespaces.validators.DataValidators;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
+import com.github.karsaii.core.extensions.namespaces.predicates.SizablePredicates;
+import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.records.CardinalityData;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
@@ -176,45 +177,45 @@ public interface CoreUtilities {
     static boolean isAllDone(ExecutionStateData stateData, int length, int index, int indicesLength) {
         if (
             NullableFunctions.isNull(stateData) ||
-            areAny(BasicPredicateFunctions::isNegative, length, index, indicesLength) ||
-            BasicPredicateFunctions.isSmallerThan(length, indicesLength) ||
-            BasicPredicateFunctions.isSmallerThan(length, index)
+            areAny(BasicPredicates::isNegative, length, index, indicesLength) ||
+            BasicPredicates.isSmallerThan(length, indicesLength) ||
+            BasicPredicates.isSmallerThan(length, index)
         ) {
             return false;
         }
 
         final var executionMap = stateData.executionMap;
         final var mapNull = NullableFunctions.isNull(executionMap);
-        final var indicesRemain = BasicPredicateFunctions.isPositiveNonZero(indicesLength);
+        final var indicesRemain = BasicPredicates.isPositiveNonZero(indicesLength);
         if (mapNull || indicesRemain) {
             return false;
         }
 
-        final var mapFilled = SizableFunctions.isSizeEqualTo(executionMap::size, length);
-        final var areValid = areAll(DataValidators::isValidNonFalse, executionMap.values().toArray(new Data[0]));
+        final var mapFilled = SizablePredicates.isSizeEqualTo(executionMap::size, length);
+        final var areValid = areAll(DataPredicates::isValidNonFalse, executionMap.values().toArray(new Data[0]));
         return (mapFilled && areValid);
     }
 
     static boolean isAnyDone(ExecutionStateData stateData, int length, int index, int indicesLength) {
         if (
             NullableFunctions.isNull(stateData) ||
-            areAny(BasicPredicateFunctions::isNegative, length, index, indicesLength) ||
-            BasicPredicateFunctions.isSmallerThan(length, indicesLength) ||
-            BasicPredicateFunctions.isSmallerThan(length, index)
+            areAny(BasicPredicates::isNegative, length, index, indicesLength) ||
+            BasicPredicates.isSmallerThan(length, indicesLength) ||
+            BasicPredicates.isSmallerThan(length, index)
         ) {
             return false;
         }
 
         final var executionMap = stateData.executionMap;
         final var mapNull = NullableFunctions.isNull(executionMap);
-        final var indicesRemain = BasicPredicateFunctions.isPositiveNonZero(indicesLength);
+        final var indicesRemain = BasicPredicates.isPositiveNonZero(indicesLength);
         if (mapNull || indicesRemain) {
             return false;
         }
 
         final var mapSize = executionMap.size();
-        final var mapFilled = SizableFunctions.isSizeEqualTo(mapSize, length);
-        final var areValid = DataValidators.isValidNonFalse(executionMap.values().toArray(new Data[0])[mapSize-1]);
+        final var mapFilled = SizablePredicates.isSizeEqualTo(mapSize, length);
+        final var areValid = DataPredicates.isValidNonFalse(executionMap.values().toArray(new Data[0])[mapSize-1]);
         return (mapFilled && areValid);
     }
 

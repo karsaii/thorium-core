@@ -4,18 +4,17 @@ import com.github.karsaii.core.extensions.namespaces.SizableFunctions;
 
 import java.util.function.Supplier;
 
-import static com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions.isBiggerThan;
-import static com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions.isNonNegative;
+import static com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates.isBiggerThan;
+import static com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates.isNonNegative;
 import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
-import static com.github.karsaii.core.extensions.namespaces.SizableFunctions.isSizeEqualTo;
 
-public interface AmountPredicatesFunctions {
+public interface AmountPredicates {
     static boolean isSingle(Supplier<Integer> sizeFunction) {
-        return isSizeEqualTo(sizeFunction, 1);
+        return SizablePredicates.isSizeEqualTo(sizeFunction, 1);
     }
 
     static boolean isDouble(Supplier<Integer> sizeFunction) {
-        return isSizeEqualTo(sizeFunction, 2);
+        return SizablePredicates.isSizeEqualTo(sizeFunction, 2);
     }
 
     static boolean hasMoreThan(Supplier<Integer> sizeFunction, int amount) {
@@ -42,7 +41,7 @@ public interface AmountPredicatesFunctions {
     }
 
     static boolean isSingle(Object[] object) {
-        return isNotNull(object) && isSizeEqualTo(object.length, 1);
+        return isNotNull(object) && SizablePredicates.isSizeEqualTo(object.length, 1);
     }
 
     static boolean isNonZero(Object[] object) {

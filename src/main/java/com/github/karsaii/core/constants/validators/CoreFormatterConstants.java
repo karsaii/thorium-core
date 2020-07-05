@@ -56,6 +56,9 @@ public abstract class CoreFormatterConstants {
     public static final String START = "start ";
     public static final String END = "end ";
 
+    public static final String ACTUAL_LIST_TYPE = "Actual Type of the list";
+    public static final String EXPECTED_LIST_TYPE =  "Expected List type";
+
     public static final Map<String, String> isMessageMap = Collections.unmodifiableMap(
         new LinkedHashMap<>(
             Map.ofEntries(

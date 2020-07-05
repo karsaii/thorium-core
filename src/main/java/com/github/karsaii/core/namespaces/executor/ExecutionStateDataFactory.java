@@ -1,6 +1,6 @@
 package com.github.karsaii.core.namespaces.executor;
 
-import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
 import org.eclipse.collections.impl.list.Interval;
@@ -22,7 +22,7 @@ public interface ExecutionStateDataFactory {
     }
 
     private static List<Integer> getListWithIndices(int length) {
-        final var localLength = BasicPredicateFunctions.isPositiveNonZero(length) ? length : 0;
+        final var localLength = BasicPredicates.isPositiveNonZero(length) ? length : 0;
         return Interval.zeroTo(localLength > 0 ? localLength - 1 : localLength).toList();
     }
 
@@ -46,7 +46,7 @@ public interface ExecutionStateDataFactory {
     }
 
     static ExecutionStateData getWithDefaultMapAndSpecificLength(int length) {
-        final var localLength = BasicPredicateFunctions.isPositiveNonZero(length) ? length : 0;
+        final var localLength = BasicPredicates.isPositiveNonZero(length) ? length : 0;
         return getWithDefaultMap(getListWithIndices(localLength));
     }
 

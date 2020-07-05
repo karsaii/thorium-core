@@ -6,7 +6,7 @@ import com.github.karsaii.core.extensions.interfaces.functional.QuadPredicate;
 import com.github.karsaii.core.extensions.interfaces.functional.TriPredicate;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.IGetMessage;
 import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
-import com.github.karsaii.core.extensions.namespaces.ExecutorPredicates;
+import com.github.karsaii.core.extensions.namespaces.predicates.ExecutorPredicates;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.SimpleMessageData;

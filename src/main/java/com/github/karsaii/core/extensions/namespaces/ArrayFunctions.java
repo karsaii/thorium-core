@@ -1,6 +1,6 @@
 package com.github.karsaii.core.extensions.namespaces;
 
-import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
 
 import java.util.Objects;
 
@@ -15,7 +15,7 @@ public interface ArrayFunctions {
         final var length = array.length;
         final var expectedSize = 1;
         return (
-            BasicPredicateFunctions.isBiggerThan(expectedSize, length) ||
+            BasicPredicates.isBiggerThan(expectedSize, length) ||
             (Objects.equals(length, expectedSize) && isNull(array[0]))
         );
     }

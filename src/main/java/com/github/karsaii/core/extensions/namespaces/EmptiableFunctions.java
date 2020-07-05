@@ -1,5 +1,8 @@
 package com.github.karsaii.core.extensions.namespaces;
 
+import com.github.karsaii.core.extensions.namespaces.predicates.SizablePredicates;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -26,5 +29,26 @@ public interface EmptiableFunctions {
 
     static boolean isNotNullAndNonEmpty(Map<?, ?> map) {
         return !(isNullOrEmpty(map));
+    }
+
+    static boolean hasOnlyNonNullValues(Collection<?> collection) {
+        return (
+            isNotNullAndNonEmpty(collection) &&
+            SizablePredicates.isSizeEqualTo(collection::size, (int)collection.stream().filter(NullableFunctions::isNotNull).count())
+        );
+    }
+
+    static boolean hasOnlyNonNullValues(Map<? ,?> map) {
+        final var validMap = isNotNullAndNonEmpty(map);
+        if (!validMap) {
+            return false;
+        }
+
+        final var keys = Arrays.asList(map.keySet().toArray());
+        final var values = Arrays.asList(map.values().toArray());
+        return (
+            SizablePredicates.isSizeEqualTo(map::size, (int)keys.stream().filter(NullableFunctions::isNotNull).count()) &&
+            SizablePredicates.isSizeEqualTo(map::size, (int)values.stream().filter(NullableFunctions::isNotNull).count())
+        );
     }
 }

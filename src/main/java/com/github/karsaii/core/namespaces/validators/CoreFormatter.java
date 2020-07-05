@@ -2,12 +2,15 @@ package com.github.karsaii.core.namespaces.validators;
 
 import com.github.karsaii.core.constants.CommandRangeDataConstants;
 import com.github.karsaii.core.extensions.DecoratedList;
+import com.github.karsaii.core.extensions.interfaces.IAmountPredicates;
 import com.github.karsaii.core.extensions.interfaces.IEmptiable;
-import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicateFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.AmountPredicates;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
 import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.extensions.namespaces.EmptiableFunctions;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
+import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.command.CommandRangeData;
 import com.github.karsaii.core.records.executor.ExecutionResultData;
@@ -17,6 +20,7 @@ import com.github.karsaii.core.records.reflection.message.InvokeParameterizedMes
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,10 +33,6 @@ import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.areAny
 import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.areAnyNull;
 import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.areNotBlank;
 import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.areNotNull;
-import static com.github.karsaii.core.namespaces.DataFunctions.isFalse;
-import static com.github.karsaii.core.namespaces.DataFunctions.isTrue;
-import static com.github.karsaii.core.namespaces.validators.DataValidators.isInvalidOrFalse;
-import static com.github.karsaii.core.namespaces.validators.DataValidators.isValidNonFalse;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -65,14 +65,14 @@ public interface CoreFormatter {
     static <T> String isEmptyMessage(T[] object) {
         var message = isNullMessageWithName(object, "Object");
         if (isBlank(message)) {
-            message += object.length < 1 ? "Object is empty" : CoreFormatterConstants.EMPTY;
+            message += BasicPredicates.isZeroOrNonPositive(object.length) ? "Object is empty" : CoreFormatterConstants.EMPTY;
         }
 
         return getNamedErrorMessageOrEmpty("isEmptyMessage: ", message);
     }
 
     static String isInvalidOrFalseMessageWithName(Data data, String parameterName) {
-        var message = isParameterMessage(isInvalidOrFalse(data), parameterName, "false data");
+        var message = isParameterMessage(DataPredicates.isInvalidOrFalse(data), parameterName, "false data");
         if (isNotBlank(message)) {
             message += data.message;
         }
@@ -89,7 +89,7 @@ public interface CoreFormatter {
     }
 
     private static String isValidNonFalseMessageWithName(Data data, String parameterName) {
-        var message = isParameterNotMessage(isValidNonFalse(data), parameterName, "valid, non-false data");
+        var message = isParameterNotMessage(DataPredicates.isValidNonFalse(data), parameterName, "valid, non-false data");
         if (isNotBlank(message)) {
             message += data.message;
         }
@@ -102,7 +102,7 @@ public interface CoreFormatter {
     }
 
     static String isFalseMessageWithName(Data data, String parameterName) {
-        var message = isParameterMessage(isFalse(data), parameterName, "false data");
+        var message = isParameterMessage(DataPredicates.isFalse(data), parameterName, "false data");
         if (isNotBlank(message)) {
             message += data.message;
         }
@@ -115,7 +115,7 @@ public interface CoreFormatter {
     }
 
     static String isTrueMessageWithName(Data data, String parameterName) {
-        var message = isParameterMessage(isTrue(data), parameterName, "true data");
+        var message = isParameterMessage(DataPredicates.isTrue(data), parameterName, "true data");
         if (isNotBlank(message)) {
             message += data.message;
         }
@@ -227,25 +227,25 @@ public interface CoreFormatter {
 
         final var map = state.executionMap;
         final var valueSet = map.values();
-        final var passedValueAmount = valueSet.stream().filter(DataValidators::isValidNonFalse).count();
+        final var passedValueAmount = valueSet.stream().filter(DataPredicates::isValidNonFalse).count();
         final var valuesLength = valueSet.size();
         final var failedValueAmount = valuesLength - passedValueAmount;
         final var builder = new StringBuilder();
         final var values = valueSet.toArray(new Data<?>[0]);
         Data<?> step;
-        if (BasicPredicateFunctions.isPositiveNonZero((int)failedValueAmount)) {
+        if (BasicPredicates.isPositiveNonZero((int)failedValueAmount)) {
             for (var stepIndex = 0; stepIndex < valuesLength; ++stepIndex) {
                 step = values[stepIndex];
-                builder.append(getExecutionStepMessage(stepIndex, (isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + step.message.toString()));
+                builder.append(getExecutionStepMessage(stepIndex, (DataPredicates.isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + step.message.toString()));
             }
         } else {
             step = map.get(key);
-            builder.append(getExecutionStepMessage(valuesLength - 1, (isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + step.message.toString()));
+            builder.append(getExecutionStepMessage(valuesLength - 1, (DataPredicates.isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + step.message.toString()));
         }
 
         final var message = (
             ((index == length) ? "All" : "Some") + " steps were executed" + CoreFormatterConstants.COLON_SPACE +
-            (BasicPredicateFunctions.isPositiveNonZero((int)failedValueAmount) ? (
+            (BasicPredicates.isPositiveNonZero((int)failedValueAmount) ? (
                 passedValueAmount + " passed, " + failedValueAmount + " failed"
             ) : ("All(" + passedValueAmount + ") passed")) + CoreFormatterConstants.END_LINE +
             "    " + builder.toString().replaceAll("\n", "\n    ")
@@ -261,7 +261,7 @@ public interface CoreFormatter {
         }
 
         final var valueSet = state.executionMap.values();
-        final var passedValueAmount = valueSet.stream().filter(DataValidators::isValidNonFalse).count();
+        final var passedValueAmount = valueSet.stream().filter(DataPredicates::isValidNonFalse).count();
         final var failedValueAmount = length - passedValueAmount;
         final var builder = new StringBuilder();
         final var valuesLength = valueSet.size();
@@ -270,12 +270,12 @@ public interface CoreFormatter {
         Data<?> step;
         for(; stepIndex < valuesLength; ++stepIndex) {
             step = values[stepIndex];
-            builder.append(getExecutionStepMessage(stepIndex, (isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + step.message.toString()));
+            builder.append(getExecutionStepMessage(stepIndex, (DataPredicates.isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + step.message.toString()));
         }
 
         final var message = (
             ((index == length) ? "All" : "Some") + " steps were executed" + CoreFormatterConstants.COLON_SPACE +
-            (BasicPredicateFunctions.isPositiveNonZero((int)failedValueAmount) ? (
+            (BasicPredicates.isPositiveNonZero((int)failedValueAmount) ? (
                 passedValueAmount + " passed, " + failedValueAmount + " failed"
             ) : ("All(" + passedValueAmount + ") passed")) + CoreFormatterConstants.END_LINE +
             "    " + builder.toString().replaceAll("\n", "\n    ")
@@ -368,8 +368,8 @@ public interface CoreFormatter {
             final var minData = isMoreThanExpected(range.min, 0, "Range minimum");
             final var maxData = isLessThanExpected(range.max, 1000, "Range maximum");
             message += (
-                (isFalse(minData) ? minData.message.toString() : CoreFormatterConstants.EMPTY) +
-                (isFalse(maxData) ? maxData.message.toString() : CoreFormatterConstants.EMPTY) +
+                (DataPredicates.isFalse(minData) ? minData.message.toString() : CoreFormatterConstants.EMPTY) +
+                (DataPredicates.isFalse(maxData) ? maxData.message.toString() : CoreFormatterConstants.EMPTY) +
                 isNullMessageWithName(range.rangeInvalidator, "Command Range validator function")
             );
         }
@@ -476,6 +476,21 @@ public interface CoreFormatter {
         return isNullOrEmptyListMessageWithName(list, "List");
     }
 
+    static String getContainsIndexMessageWithName(List<?> list, int index, String parameterName) {
+        var message = isNullOrEmptyListMessageWithName(list, parameterName);
+        if (isBlank(message)) {
+            if (!AmountPredicates.hasIndex(list::size, index)) {
+                message += "List doesn't contain index: " + index;
+            }
+        }
+
+        return getNamedErrorMessageOrEmpty("getContainsIndexMessageWithName: ", message);
+    }
+
+    static String getContainsIndexMessageWithName(List<?> list, int index) {
+        return getContainsIndexMessageWithName(list, index, "List");
+    }
+
     static <T> String getListEmptyMessage(DecoratedList<T> list, String parameterName) {
         final var name = isBlank(parameterName) ? "List" : parameterName;
         var message = "";
@@ -522,7 +537,7 @@ public interface CoreFormatter {
 
     static String isNegativeMessageWithName(int value, String parameterName) {
         final var name = isNotBlank(parameterName) ? parameterName : "Value parameter";
-        final var status = BasicPredicateFunctions.isNegative(value);
+        final var status = BasicPredicates.isNegative(value);
         var message = "";
         if (status) {
             message += name + "(\"" + value +"\") is negative" + CoreFormatterConstants.END_LINE;
@@ -635,11 +650,53 @@ public interface CoreFormatter {
         return getNamedErrorMessageOrEmpty("getValidNonFalseAndValidContainedMessage: ", message);
     }
 
-    static <T> Function<Data<T>, String> isValidNonFalseAndValidContains(Function<T, String> validator) {
+    static <T> Function<Data<T>, String> getValidNonFalseAndValidContainedMessage(Function<T, String> validator) {
         return data -> getValidNonFalseAndValidContainedMessage(data, validator);
     }
 
-    static <T> Function<Data<T>, String> isValidNonFalseAndValidContains(Predicate<T> validator) {
+    static <T> Function<Data<T>, String> getValidNonFalseAndValidContainedMessage(Predicate<T> validator) {
         return data -> getValidNonFalseAndValidContainedMessage(data, validator);
+    }
+
+    static <T> String isListTypeEqual(String object, String expected) {
+        return isEqualMessage(object, CoreFormatterConstants.ACTUAL_LIST_TYPE, expected, CoreFormatterConstants.EXPECTED_LIST_TYPE);
+    }
+
+    static Function<String, String> isListTypeEqual(String expected) {
+        return value -> CoreFormatter.isEqualMessage(value, expected);
+    }
+
+    static <T, U, V extends DecoratedList<U>> String isValidTypedNonEmptyListMessage(Data<V> listData, Class<U> clazz) {
+        var message = isNullMessage(clazz);
+        if (isBlank(message)) {
+            message += getValidNonFalseAndValidContainedMessage(
+                listData,
+                isListTypeEqual(clazz.getTypeName()).compose(DecoratedList::getType)
+            );
+        }
+
+        if (isBlank(message)) {
+            message += isNullOrEmptyListMessageWithName(listData.object, "List");
+        }
+
+        return getNamedErrorMessageOrEmpty("isOfTypeNonEmptyMessage: ", message);
+    }
+
+    static <T, U, V extends DecoratedList<U>> Function<Data<V>, String> isValidTypedNonEmptyListMessage(Class<U> clazz) {
+        return list -> isValidTypedNonEmptyListMessage(list, clazz);
+    }
+
+    static <T> String areInvalidParametersMessage(Collection<T> data, Predicate<T> validator) {
+        var message = isEmptyMessage(data) + isNullMessageWithName(validator, "Validator");
+        var sb = new StringBuilder();
+        if (isBlank(message)) {
+            var index = 0;
+            for(var parameters : data) {
+                sb.append(isInvalidMessage(validator.test(parameters), index + ". parameters data"));
+            }
+        }
+
+        message += sb.toString();
+        return getNamedErrorMessageOrEmpty("areInvalidParametersMessage: ", message);
     }
 }

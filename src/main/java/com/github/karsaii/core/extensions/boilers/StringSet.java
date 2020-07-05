@@ -1,7 +1,6 @@
 package com.github.karsaii.core.extensions.boilers;
 
 import com.github.karsaii.core.extensions.interfaces.IEmptiableCollection;
-import com.github.karsaii.core.extensions.namespaces.EmptiableCollectionFunctions;
 import com.github.karsaii.core.extensions.namespaces.EmptiableFunctions;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.extensions.namespaces.SizableFunctions;
@@ -43,7 +42,7 @@ public class StringSet implements Set<String>, IEmptiableCollection {
 
     @Override
     public boolean hasOnlyNonNullValues() {
-        return EmptiableCollectionFunctions.hasOnlyNonNullValues(set);
+        return EmptiableFunctions.hasOnlyNonNullValues(set);
     }
 
     @Override
