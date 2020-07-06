@@ -3,6 +3,10 @@ package com.github.karsaii.core.extensions.namespaces.predicates;
 import java.util.Objects;
 
 public interface BasicPredicates {
+    static boolean isBiggerThan(long value, long limit) {
+        return value > limit;
+    }
+
     static boolean isNonNegative(int value) {
         return isBiggerThan(value, -1);
     }
@@ -13,10 +17,6 @@ public interface BasicPredicates {
 
     static boolean isPositiveNonZero(int value) {
         return isBiggerThan(value, 0);
-    }
-
-    static boolean isBiggerThan(long value, long limit) {
-        return value > limit;
     }
 
     static boolean isSmallerThan(long value, long limit) {
