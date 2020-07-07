@@ -660,7 +660,7 @@ public interface CoreFormatter {
 
     static String isEqualMessage(Object left, String leftDescriptor, Object right, String rightDescriptor) {
         var message = isNullMessageWithName(left, "Left Object") + isNullMessageWithName(right, "Right Object");
-        if (isBlank(message) && Objects.equals(left, right)) {
+        if (isBlank(message) && !Objects.equals(left, right)) {
             message += (
                 (
                     areAnyBlank(leftDescriptor, rightDescriptor) ? "The two objects" : (leftDescriptor + " and " + rightDescriptor)
