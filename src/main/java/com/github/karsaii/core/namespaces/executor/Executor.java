@@ -2,6 +2,9 @@ package com.github.karsaii.core.namespaces.executor;
 
 import com.github.karsaii.core.constants.CoreDataConstants;
 import com.github.karsaii.core.constants.CoreConstants;
+import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
+import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
+import com.github.karsaii.core.extensions.namespaces.predicates.SizablePredicates;
 import com.github.karsaii.core.namespaces.DataExecutionFunctions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.records.Data;
@@ -13,6 +16,7 @@ import com.github.karsaii.core.records.executor.ExecutionParametersData;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 import static com.github.karsaii.core.namespaces.predicates.DataPredicates.isInvalidOrFalse;
@@ -57,13 +61,14 @@ public interface Executor {
         return DataFactoryFunctions.getWithNameAndMessage(ExecutionResultDataFactory.getWith(executionStatus, returnObject), status, "executeCore", message);
     }
 
+    @SafeVarargs
     private static <DependencyType, ArrayType, ReturnType, ParameterReturnType> Function<DependencyType, Data<ReturnType>> executeGuardCore(
         ExecutionParametersData<ArrayType, Function<DependencyType, Data<ParameterReturnType>>> execution,
         Function<DependencyType, Data<ReturnType>> executionChain,
         Data<ReturnType> negative,
-        int stepLength
+        Function<DependencyType, Data<?>>... steps
     ) {
-        return DataExecutionFunctions.ifDependency("executeGuardCore", CoreFormatter.getCommandAmountRangeErrorMessage(stepLength, execution.range), executionChain, negative);
+        return DataExecutionFunctions.ifDependency("executeGuardCore", CoreFormatter.getValidCommandMessage(steps, execution.range), executionChain, negative);
     }
 
     @SafeVarargs
@@ -75,7 +80,7 @@ public interface Executor {
         @SuppressWarnings("unchecked")
         final var negativeReturnObject = (ReturnType) CoreConstants.STOCK_OBJECT;
         final var negative = DataFactoryFunctions.getInvalidWithNameAndMessage(ExecutionResultDataFactory.getWithDefaultState(negativeReturnObject), "execute", CoreFormatterConstants.EMPTY);
-        return executeGuardCore(execution, execution.executor.apply(execution.functionData, stateData, steps), negative, steps.length);
+        return executeGuardCore(execution, execution.executor.apply(execution.functionData, stateData, steps), negative, steps);
     }
 
     private static <DependencyType, ReturnType> Data<ReturnType> executeData(
@@ -109,6 +114,6 @@ public interface Executor {
         @SuppressWarnings("unchecked")
         final var negativeReturnObject = (ReturnType) CoreConstants.STOCK_OBJECT;
         final var negative = DataFactoryFunctions.getWithMessage(negativeReturnObject, false, CoreFormatterConstants.EMPTY);
-        return executeGuardCore(execution, executeData(execution, steps), negative, steps.length);
+        return executeGuardCore(execution, executeData(execution, steps), negative, steps);
     }
 }

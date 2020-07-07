@@ -1,6 +1,8 @@
 package formatter;
 
 import com.github.karsaii.core.constants.CommandRangeDataConstants;
+import com.github.karsaii.core.constants.formatter.NumberConditionDataConstants;
+import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 import org.junit.jupiter.api.Assertions;
 
@@ -27,31 +29,56 @@ public class FormatterTests {
     @Test
     void isNumberConditionCoreWithDefaultCommandRangeTest() {
         final var min = CommandRangeDataConstants.DEFAULT_RANGE.min;
-        final var result = CoreFormatter.isNumberConditionCore(min > 0, min, 0, "Range minimum", "more than", "isMoreThanExpected");
+        final var result = CoreFormatter.isNumberConditionCore(min, 0, "Range minimum", NumberConditionDataConstants.MORE_THAN);
         Assertions.assertTrue(result.status, result.object + " Message:  " + result.message);
     }
 
     public static Stream<Arguments> isLessThanExpectedProvider() {
+        final var baseMessage = "isLessThanExpected: Parameters were ";
         return Stream.of(
-            Arguments.of("Zero less than one, parameter x", 0, 1, "x", true, "isLessThanExpected: Parameters were okay.\n"),
-            Arguments.of("One isn't less than Zero, parameter x", 1, 0, "x", false, "isLessThanExpected: Parameters werenot okay. x(\"1\") wasnot less than expected(\"0\").\n"),
-            Arguments.of("0 equals 0, result is false, parameter x", 0, 0, "x", false, "isLessThanExpected: Parameters werenot okay. x(\"0\") wasnot less than expected(\"0\").\n"),
-            Arguments.of("Any, empty string parameter name", 0, 1, "", false, "isLessThanExpected:  There were parameter issue(s):\nName of the parameter parameter was blank, empty or null.\n"),
-            Arguments.of("Any, null parameter name", 0, 1, null, false, "isLessThanExpected:  There were parameter issue(s):\nName of the parameter parameter was blank, empty or null.\n")
+            Arguments.of("0 less than 1, parameter x", 0, 1, "x", true, baseMessage + "okay.\n"),
+            Arguments.of("0 less than 1, parameter name empty", 0, 1, "", true, baseMessage + "okay.\n"),
+            Arguments.of("0 less than 1, parameter name a single space", 0, 1, " ", true, baseMessage + "okay.\n"),
+            Arguments.of("-1 less than 0, parameter x", -1, 0, "x", true, baseMessage + "okay.\n"),
+            Arguments.of("-1 less than 0, parameter name empty", -1, 0, "", true, baseMessage + "okay.\n"),
+            Arguments.of("-1 less than 0, parameter name a single space", -1, 0, " ", true, baseMessage + "okay.\n"),
+            Arguments.of("1 isn't less than 0, parameter x", 1, 0, "x", false, baseMessage + "not okay.\nx(\"1\") was not less than expected(\"0\").\n"),
+            Arguments.of("0 equals 0, result is false, parameter x", 0, 0, "x", false, baseMessage + "not okay.\nx(\"0\") was not less than expected(\"0\").\n"),
+            Arguments.of("1 isn't less than 0, parameter name empty", 1, 0, "", false, baseMessage + "not okay.\nNumber(\"1\") was not less than expected(\"0\").\n"),
+            Arguments.of("1 isn't less than 0, parameter name a single space", 1, 0, " ", false, baseMessage + "not okay.\nNumber(\"1\") was not less than expected(\"0\").\n"),
+            Arguments.of("0 less than 1, parameter name null", 0, 1, null, false, "isLessThanExpected: There were parameter issue(s):\nFunction parameter - parameter name parameter was null.\n")
         );
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("isLessThanExpectedProvider")
-    public void isLessThanExpected(String name, int number, int expected, String parameterName, boolean expectedStatus, String expectedMessage) {
+    public void isLessThanExpectedTest(String name, int number, int expected, String parameterName, boolean expectedStatus, String expectedMessage) {
         final var result = CoreFormatter.isLessThanExpected(number, expected, parameterName);
         final var message = result.message.toString();
-        Assertions.assertTrue(
-            (
-                Objects.equals(result.status, expectedStatus) &&
-                Objects.equals(message, expectedMessage)
-            ),
-            message
+        Assertions.assertTrue((Objects.equals(result.status, expectedStatus) && Objects.equals(message, expectedMessage)), message);
+    }
+
+    public static Stream<Arguments> isLessThanExpectedMessageTestProvider() {
+        final var baseMessage = "isLessThanExpectedMessage: " + CoreFormatterConstants.PARAMETER_ISSUES_LINE;
+        return Stream.of(
+                Arguments.of("0 less than 1, parameter x", 0, 1, "x", ""),
+                Arguments.of("0 less than 1, parameter name empty", 0, 1, "", ""),
+                Arguments.of("0 less than 1, parameter name a single space", 0, 1, " ", ""),
+                Arguments.of("-1 less than 0, parameter x", -1, 0, "x", ""),
+                Arguments.of("-1 less than 0, parameter name empty", -1, 0, "", ""),
+                Arguments.of("-1 less than 0, parameter name a single space", -1, 0, " ", ""),
+                Arguments.of("1 isn't less than 0, parameter x", 1, 0, "x", baseMessage + "x(\"1\") was not less than expected(\"0\").\n"),
+                Arguments.of("0 equals 0, result is false, parameter x", 0, 0, "x", baseMessage + "x(\"0\") was not less than expected(\"0\").\n"),
+                Arguments.of("1 isn't less than 0, parameter name empty", 1, 0, "", baseMessage + "Number(\"1\") was not less than expected(\"0\").\n"),
+                Arguments.of("1 isn't less than 0, parameter name a single space", 1, 0, " ", baseMessage + "Number(\"1\") was not less than expected(\"0\").\n"),
+                Arguments.of("0 less than 1, parameter name null", 0, 1, null, baseMessage + "Function parameter - parameter name parameter was null.\n")
         );
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("isLessThanExpectedMessageTestProvider")
+    public void isLessThanExpectedMessageTest(String name, int number, int expected, String parameterName, String expectedMessage) {
+        final var result = CoreFormatter.isLessThanExpectedMessage(number, expected, parameterName);
+        Assertions.assertEquals(expectedMessage, result, "Result didn't equal expected message" + CoreFormatterConstants.END_LINE);
     }
 }

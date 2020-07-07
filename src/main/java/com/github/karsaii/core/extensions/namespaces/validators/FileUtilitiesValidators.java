@@ -17,6 +17,6 @@ public interface FileUtilitiesValidators {
             }
         }
 
-        return getNamedErrorMessageOrEmpty("isExistingMessage: ", message);
+        return getNamedErrorMessageOrEmpty("isExistingMessage", message);
     }
 }

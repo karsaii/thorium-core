@@ -1,4 +1,4 @@
-package com.github.karsaii.core.namespaces;
+package com.github.karsaii.core.namespaces.factories;
 
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupplier;
 import com.github.karsaii.core.records.Data;

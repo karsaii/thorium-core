@@ -1,8 +1,10 @@
 package datasupplier;
 
+import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupplier;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.executor.step.StepExecutor;
 import com.github.karsaii.core.namespaces.executor.step.StepFactory;
+import com.github.karsaii.core.records.executor.ExecutionStateData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,12 +33,19 @@ public class DataSupplierTests {
         Assertions.assertTrue(result.status, result.message.toString());
     }
 
-    @DisplayName("I don't know")
+    @DisplayName("Nullsuppliers test - A name and two nulls")
     @Test
-    void emptyExecutorTest() {
-        final var result = StepExecutor.execute("Empty Executor", null, null).get();
-        Assertions.assertTrue(result.status, result.message.toString());
+    void nullSuppliersTest() {
+        final var result = StepExecutor.execute("Empty Executor", (DataSupplier)null, (DataSupplier)null).get();
+        Assertions.assertFalse(result.status, result.message.toString());
     }
+
+    /*@DisplayName("Nullsuppliers test - A name, an executionStateData null and a supplier null")
+    @Test
+    void nullExecutionStateDataAndSupplierTest() {
+        final var result = StepExecutor.execute("Empty Executor with Null Execution State Data", (ExecutionStateData)null, (DataSupplier)null).get();
+        Assertions.assertFalse(result.status, result.message.toString());
+    }*/
 
     @DisplayName("Single step executor")
     @Test

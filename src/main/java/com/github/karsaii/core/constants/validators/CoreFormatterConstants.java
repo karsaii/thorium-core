@@ -15,7 +15,7 @@ public abstract class CoreFormatterConstants {
     public static final String NAME_START = "ss";
     public static final String SS_NAME_SEPARATOR = "-";
     public static final String EMPTY = "";
-    public static final String OPTION_NOT = "not";
+    public static final String OPTION_NOT = "not ";
     public static final String OPTION_EMPTY = "";
     public static final String NEW_LINE = "\n";
     public static final String END_LINE = "." + NEW_LINE;
@@ -40,7 +40,7 @@ public abstract class CoreFormatterConstants {
     public static final String SUCCESSFULLY_EXECUTE = "Successfully executed";
     public static final String NULL_DATA = "nullData.";
     public static final String EXECUTION_STATUS = "Execution status";
-    public static final String PARAMETER_ISSUES = " There were parameter issue(s)";
+    public static final String PARAMETER_ISSUES = "There were parameter issue(s)";
     public static final String PARAMETER_ISSUES_END = PARAMETER_ISSUES + END_LINE;
     public static final String COLON = ":";
     public static final String COLON_SPACE = COLON + " ";

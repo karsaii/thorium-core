@@ -1,8 +1,8 @@
 package com.github.karsaii.core.namespaces.validators;
 
 import com.github.karsaii.core.constants.CommandRangeDataConstants;
+import com.github.karsaii.core.constants.formatter.NumberConditionDataConstants;
 import com.github.karsaii.core.extensions.DecoratedList;
-import com.github.karsaii.core.extensions.interfaces.IAmountPredicates;
 import com.github.karsaii.core.extensions.interfaces.IEmptiable;
 import com.github.karsaii.core.extensions.namespaces.predicates.AmountPredicates;
 import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
@@ -10,16 +10,19 @@ import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.extensions.namespaces.EmptiableFunctions;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
+import com.github.karsaii.core.namespaces.StringUtilities;
 import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.command.CommandRangeData;
 import com.github.karsaii.core.records.executor.ExecutionResultData;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
+import com.github.karsaii.core.records.formatter.NumberConditionData;
 import com.github.karsaii.core.records.reflection.message.InvokeCommonMessageParametersData;
 import com.github.karsaii.core.records.reflection.message.InvokeParameterizedMessageData;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +42,13 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public interface CoreFormatter {
     static String getNamedErrorMessageOrEmpty(String name, String message) {
         final var nameof = isNotBlank(name) ? name : "getNamedErrorMessageOrEmpty: (Name was empty.) ";
-        return isNotBlank(message) ? nameof + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message : CoreFormatterConstants.EMPTY;
+        var returnMessage = "";
+        if (StringUtilities.contains(message, CoreFormatterConstants.PARAMETER_ISSUES_LINE)) {
+            returnMessage = nameof + CoreFormatterConstants.COLON_SPACE + message;
+        } else {
+            returnMessage = nameof + CoreFormatterConstants.COLON_SPACE + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message;
+        }
+        return isNotBlank(message) ? returnMessage : CoreFormatterConstants.EMPTY;
     }
 
     static String getOptionMessage(boolean status) {
@@ -68,7 +77,7 @@ public interface CoreFormatter {
             message += BasicPredicates.isZeroOrNonPositive(object.length) ? "Object is empty" : CoreFormatterConstants.EMPTY;
         }
 
-        return getNamedErrorMessageOrEmpty("isEmptyMessage: ", message);
+        return getNamedErrorMessageOrEmpty("isEmptyMessage", message);
     }
 
     static String isInvalidOrFalseMessageWithName(Data data, String parameterName) {
@@ -77,7 +86,7 @@ public interface CoreFormatter {
             message += data.message;
         }
 
-        return getNamedErrorMessageOrEmpty("isInvalidOrFalseMessage: ", message);
+        return getNamedErrorMessageOrEmpty("isInvalidOrFalseMessage", message);
     }
 
     static String isInvalidOrFalseMessage(Data data) {
@@ -94,7 +103,7 @@ public interface CoreFormatter {
             message += data.message;
         }
 
-        return getNamedErrorMessageOrEmpty("isValidNonFalseMessageWithName: ", message);
+        return getNamedErrorMessageOrEmpty("isValidNonFalseMessageWithName", message);
     }
 
     private static String isValidNonFalseMessage(Data data) {
@@ -107,7 +116,7 @@ public interface CoreFormatter {
             message += data.message;
         }
 
-        return getNamedErrorMessageOrEmpty("isFalseMessageWithName: ", message);
+        return getNamedErrorMessageOrEmpty("isFalseMessageWithName", message);
     }
 
     static String isFalseMessage(Data data) {
@@ -120,7 +129,7 @@ public interface CoreFormatter {
             message += data.message;
         }
 
-        return getNamedErrorMessageOrEmpty("isTrueMessageWithName: ", message);
+        return getNamedErrorMessageOrEmpty("isTrueMessageWithName", message);
     }
 
     static String isTrueMessage(Data data) {
@@ -148,20 +157,20 @@ public interface CoreFormatter {
     }
 
     static String getConditionMessage(String elementName, String descriptor, boolean option) {
-        final var name = "getConditionMessage: ";
+        final var name = "getConditionMessage";
         final var errorMessage = (
             isBlankMessageWithName(elementName, "Element name") +
             isBlankMessageWithName(descriptor, "Descriptor")
         );
-        return name + (
+        return  (
             isNotBlank(errorMessage) ? (
-                CoreFormatterConstants.PARAMETER_ISSUES_LINE + errorMessage
-            ) : (CoreFormatterConstants.ELEMENT + getConditionStatusMessage(option) + " " + descriptor + CoreFormatterConstants.END_LINE)
+                getNamedErrorMessageOrEmpty(name, errorMessage)
+            ) : name +(CoreFormatterConstants.ELEMENT + getConditionStatusMessage(option) + " " + descriptor + CoreFormatterConstants.END_LINE)
         );
     }
 
     static String getElementValueMessage(String elementName, String descriptor, String value) {
-        final var name = "getValueMessage: ";
+        final var name = "getValueMessage";
         final var errorMessage = (
                 isBlankMessageWithName(elementName, "Element name") +
                 isBlankMessageWithName(descriptor, "Descriptor") +
@@ -169,8 +178,8 @@ public interface CoreFormatter {
         );
         return name + (
             isNotBlank(errorMessage) ? (
-                CoreFormatterConstants.PARAMETER_ISSUES_LINE + errorMessage
-            ) : (CoreFormatterConstants.ELEMENT + " " + elementName + " " + descriptor + " was (\"" + value +"\")"  + CoreFormatterConstants.END_LINE)
+                getNamedErrorMessageOrEmpty(name, errorMessage)
+            ) : name + (CoreFormatterConstants.ELEMENT + " " + elementName + " " + descriptor + " was (\"" + value +"\")"  + CoreFormatterConstants.END_LINE)
         );
     }
 
@@ -199,12 +208,12 @@ public interface CoreFormatter {
             );
         }
 
-        return getNamedErrorMessageOrEmpty("getExecutionStatusInvalidMessage: ", message);
+        return getNamedErrorMessageOrEmpty("getExecutionStatusInvalidMessage", message);
     }
 
     static String getExecutionEndParametersInvalidMessage(ExecutionStateData state, String key, int index, int length) {
         return getNamedErrorMessageOrEmpty(
-            "getExecutionEndParametersInvalidMessage: ",
+            "getExecutionEndParametersInvalidMessage",
             (
                 getExecutionStatusInvalidMessage(state) +
                 isBlankMessageWithName(key, "Last key from execution") +
@@ -251,7 +260,7 @@ public interface CoreFormatter {
             "    " + builder.toString().replaceAll("\n", "\n    ")
         );
 
-        return getNamedErrorMessageOrEmptyNoIssues("Execution end: ", message);
+        return getNamedErrorMessageOrEmptyNoIssues("Execution end", message);
     }
 
     static String getExecutionEndMessageAggregate(ExecutionStateData state, String key, int index, int length) {
@@ -322,59 +331,109 @@ public interface CoreFormatter {
             }
         }
 
-        return getNamedErrorMessageOrEmpty("isEmptyMessage: ", message);
+        return getNamedErrorMessageOrEmpty("isEmptyMessage", message);
     }
 
     static <T> String isEmptyMessage(T data) {
         return isEmptyMessage(data, "Emptiable data");
     }
 
-    static Data<String> isNumberConditionCore(boolean status, int number, int expected, String parameterName, String conditionDescriptor, String nameof) {
-        var message = (
-            isNullMessageWithName(nameof, "Caller function's name") +
-            isBlankMessageWithName(parameterName, "Name of the parameter") +
-            isBlankMessageWithName(conditionDescriptor, "Condition Descriptor")
-        );
 
-        final var lNameof = isBlank(nameof) ? "isNumberConditionCore" : nameof;
-        if (isNotBlank(message)) {
-            return DataFactoryFunctions.getWithNameAndMessage(CoreFormatterConstants.EMPTY, false, lNameof, CoreFormatterConstants.PARAMETER_ISSUES + message);
+    static String getNumberConditionDataValidMessage(NumberConditionData data) {
+        var message = isNullMessageWithName(data, "Number condition data");
+        if (isBlank(message)) {
+            message += (
+                isNullMessageWithName(data.nameof, "Caller function's Name") +
+                isBlankMessageWithName(data.descriptor, "Condition Descriptor") +
+                isBlankMessageWithName(data.parameterName, "Parameter Name") +
+                isNullMessageWithName(data.function, "Condition Function")
+            );
         }
 
-        final var lParameterName = isBlank(parameterName) ? "Number" : parameterName;
+        return getNamedErrorMessageOrEmpty("getNumberConditionDataValidMessage", message);
+    }
+
+    private static String getNumberConditionCoreFormattedMessage(int number, int expected, String parameterName, String descriptor) {
+        return parameterName + "(\"" + number + "\") was " + descriptor + " expected(\"" + expected +"\")" + CoreFormatterConstants.END_LINE;
+    }
+
+    static Data<String> isNumberConditionCore(int number, int expected, String parameterName, NumberConditionData data) {
+        var message = getNumberConditionDataValidMessage(data);
+        if (isBlank(message)) {
+            message += isNullMessageWithName(parameterName, "Function parameter - parameter name");
+        }
+
+        if (isNotBlank(message)) {
+            final var returnMessage = CoreFormatterConstants.PARAMETER_ISSUES_LINE + message;
+            return DataFactoryFunctions.getInvalidWithNameAndMessage(returnMessage, data.nameof, returnMessage);
+        }
+
+        final var status = data.function.test(number, expected);
         final var option = getOptionMessage(status);
-        final var object = lParameterName + "(\"" + number + "\") was" + option + " " + conditionDescriptor + " expected(\"" + expected +"\")" + CoreFormatterConstants.END_LINE;
-        final var returnMessage = "Parameters were" + option + " okay." ;
-        return status ? (
-            DataFactoryFunctions.getWithNameAndMessage(object, status, lNameof, returnMessage + "\n")
-        ) : DataFactoryFunctions.getWithNameAndMessage(CoreFormatterConstants.EMPTY, status, lNameof, returnMessage + " " + object);
+        final var descriptor = option + data.descriptor;
+        final var object = getNumberConditionCoreFormattedMessage(number, expected, (isBlank(parameterName) ? data.parameterName : parameterName), descriptor);
+        var returnMessage = "Parameters were " + option + "okay" + CoreFormatterConstants.END_LINE;
+        if (!status) {
+            returnMessage += object;
+        }
+
+        return DataFactoryFunctions.getWithNameAndMessage(object, status, data.nameof, returnMessage);
     }
 
     static Data<String> isEqualToExpected(int number, int expected, String parameterName) {
-        return isNumberConditionCore(number == expected, number, expected, parameterName, "equal to", "isEqualToExpected");
+        return isNumberConditionCore(number, expected, parameterName, NumberConditionDataConstants.EQUAL_TO);
     }
 
     static Data<String> isLessThanExpected(int number, int expected, String parameterName) {
-        return isNumberConditionCore(number < expected, number, expected, parameterName, "less than", "isLessThanExpected");
+        return isNumberConditionCore(number, expected, parameterName, NumberConditionDataConstants.LESS_THAN);
     }
 
     static Data<String> isMoreThanExpected(int number, int expected, String parameterName) {
-        return isNumberConditionCore(number > expected, number, expected, parameterName, "more than", "isMoreThanExpected");
+        return isNumberConditionCore(number, expected, parameterName, NumberConditionDataConstants.MORE_THAN);
+    }
+
+    static String isEqualToExpectedMessage(int number, int expected, String parameterName) {
+        var message = "";
+        var data = isEqualToExpected(number, expected, parameterName);
+        if (DataPredicates.isInvalidOrFalse(data)) {
+            message += data.object;
+        }
+
+        return getNamedErrorMessageOrEmpty("isEqualToExpectedMessage", message);
+    }
+
+    static String isLessThanExpectedMessage(int number, int expected, String parameterName) {
+        var message = "";
+        var data = isLessThanExpected(number, expected, parameterName);
+        if (DataPredicates.isInvalidOrFalse(data)) {
+            message += data.object;
+        }
+
+        return getNamedErrorMessageOrEmpty("isLessThanExpectedMessage", message);
+    }
+
+    static String isMoreThanExpectedMessage(int number, int expected, String parameterName) {
+        var message = "";
+        var data = isMoreThanExpected(number, expected, parameterName);
+        if (DataPredicates.isInvalidOrFalse(data)) {
+            message += data.object;
+        }
+
+        return getNamedErrorMessageOrEmpty("isMoreThanExpectedMessage", message);
     }
 
     static String getCommandRangeParameterMessage(CommandRangeData range) {
         var message = isNullMessageWithName(range, "Range object");
         if (isBlank(message)) {
-            final var minData = isMoreThanExpected(range.min, 0, "Range minimum");
-            final var maxData = isLessThanExpected(range.max, 1000, "Range maximum");
+
             message += (
-                (DataPredicates.isFalse(minData) ? minData.message.toString() : CoreFormatterConstants.EMPTY) +
-                (DataPredicates.isFalse(maxData) ? maxData.message.toString() : CoreFormatterConstants.EMPTY) +
+                isMoreThanExpectedMessage(range.min, 0, "Range minimum") +
+                isLessThanExpectedMessage(range.max, 1000, "Range maximum") +
                 isNullMessageWithName(range.rangeInvalidator, "Command Range validator function")
             );
         }
 
-        return getNamedErrorMessageOrEmpty("getCommandRangeParameterMessage: ", message);
+        return getNamedErrorMessageOrEmpty("getCommandRangeParameterMessage", message);
     }
 
     static String getCommandAmountRangeErrorMessage(int length, CommandRangeData range) {
@@ -400,6 +459,35 @@ public interface CoreFormatter {
         }
 
         return message;
+    }
+
+    static String getValidCommandMessage(Function<?, ?>[] steps, CommandRangeData range) {
+        var message = isNullMessageWithName(steps, "Steps");
+        var length = 0;
+        if (isBlank(message)) {
+            length = steps.length;
+            message += isMoreThanExpectedMessage(length, 0, "Steps Length");
+        }
+        if (isBlank(message)) {
+            message += getCommandAmountRangeErrorMessage(length, range);
+        }
+
+        if (isBlank(message)) {
+            var builder = new StringBuilder();
+            var current = "";
+            if (isBlank(message)) {
+                for (var index = 0; index < length; ++index) {
+                    current = isNullMessageWithName(steps[index], index + ". step");
+                    if (isNotBlank(current)) {
+                        builder.append(current);
+                    }
+                }
+            }
+
+            message += builder.toString();
+        }
+
+        return getNamedErrorMessageOrEmpty("getValidCommandMessage", message);
     }
 
     static String getCommandAmountRangeErrorMessage(int length, int min, int max) {
@@ -469,7 +557,7 @@ public interface CoreFormatter {
             message += list.isEmpty() ? name + " was empty" + CoreFormatterConstants.END_LINE : CoreFormatterConstants.EMPTY;
         }
 
-        return getNamedErrorMessageOrEmpty("isNullOrEmptyListMessage: ", message);
+        return getNamedErrorMessageOrEmpty("isNullOrEmptyListMessage", message);
     }
 
     static String isNullOrEmptyListMessage(List<?> list) {
@@ -484,7 +572,7 @@ public interface CoreFormatter {
             }
         }
 
-        return getNamedErrorMessageOrEmpty("getContainsIndexMessageWithName: ", message);
+        return getNamedErrorMessageOrEmpty("getContainsIndexMessageWithName", message);
     }
 
     static String getContainsIndexMessage(List<?> list, int index) {
@@ -502,7 +590,7 @@ public interface CoreFormatter {
             message += name + "was empty" + CoreFormatterConstants.END_LINE;
         }
 
-        return isNotBlank(message) ? "getListEmptyMessage: " + message : CoreFormatterConstants.EMPTY;
+        return isNotBlank(message) ? "getListEmptyMessage" + message : CoreFormatterConstants.EMPTY;
     }
 
     static <T> String getListNotEnoughMessage(DecoratedList<T> list, String parameterName, int expected) {
@@ -516,7 +604,7 @@ public interface CoreFormatter {
             message += name + "length was less than " + expected + CoreFormatterConstants.END_LINE;
         }
 
-        return isNotBlank(message) ? "getListEmptyMessage: " + message : CoreFormatterConstants.EMPTY;
+        return isNotBlank(message) ? "getListEmptyMessage" + message : CoreFormatterConstants.EMPTY;
     }
 
     static Function<Boolean, String> isFormatterNullAndMessageBlank() {
@@ -543,7 +631,7 @@ public interface CoreFormatter {
             message += name + "(\"" + value +"\") is negative" + CoreFormatterConstants.END_LINE;
         }
 
-        return isNotBlank(message) ? "isNegativeMessage: " + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message : CoreFormatterConstants.EMPTY;
+        return getNamedErrorMessageOrEmpty("isNegativeMessage", message);
     }
 
     static String isNegativeMessage(int value) {
@@ -559,7 +647,7 @@ public interface CoreFormatter {
             }
         }
 
-        return getNamedErrorMessageOrEmpty("isNullOrEmpty: ", message);
+        return getNamedErrorMessageOrEmpty("isNullOrEmpty", message);
     }
 
     static String isNullOrEmptyMessage(IEmptiable emptiable) {
@@ -580,7 +668,7 @@ public interface CoreFormatter {
             );
         }
 
-        return isNotBlank(message) ? "isEqualMessage: " + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message : CoreFormatterConstants.EMPTY;
+        return getNamedErrorMessageOrEmpty("isEqualMessage", message);
     }
 
     static String isEqualMessage(Object left, Object right) {
@@ -588,7 +676,7 @@ public interface CoreFormatter {
     }
 
     static String getAreValidPadParametersMessage(String value, String parameterName, String pad) {
-        return getNamedErrorMessageOrEmpty("getAreValidPadParametersMessage: ",  isNullMessage(value) + isNullMessageWithName(parameterName, "Parameter name value") + isNullMessageWithName(pad, "Pad value"));
+        return getNamedErrorMessageOrEmpty("getAreValidPadParametersMessage",  isNullMessage(value) + isNullMessageWithName(parameterName, "Parameter name value") + isNullMessageWithName(pad, "Pad value"));
     }
 
     private static String notPaddedCommon(String location, String pad) {
@@ -601,7 +689,7 @@ public interface CoreFormatter {
             message += !value.startsWith(pad) ? parameterName + " " + notPaddedCommon(CoreFormatterConstants.START, pad) : CoreFormatterConstants.EMPTY;
         }
 
-        return getNamedErrorMessageOrEmpty("isStartPaddedWith: ", message);
+        return getNamedErrorMessageOrEmpty("isStartPaddedWith", message);
     }
 
     static String isEndPaddedWith(String value, String parameterName, String pad) {
@@ -610,7 +698,7 @@ public interface CoreFormatter {
             message += !value.endsWith(pad) ? parameterName + " " + notPaddedCommon(CoreFormatterConstants.END, pad) : CoreFormatterConstants.EMPTY;
         }
 
-        return getNamedErrorMessageOrEmpty("isEndPaddedWith: ", message);
+        return getNamedErrorMessageOrEmpty("isEndPaddedWith", message);
     }
 
     static String isPadded(String value, String parameterName, String pad) {
@@ -626,7 +714,7 @@ public interface CoreFormatter {
             );
         }
 
-        return getNamedErrorMessageOrEmpty("isPadded: ", message);
+        return getNamedErrorMessageOrEmpty("isPadded", message);
     }
 
     static <T> String getValidNonFalseAndValidContainedMessage(Data<T> data, Function<T, String> validator) {
@@ -638,7 +726,7 @@ public interface CoreFormatter {
             }
         }
 
-        return getNamedErrorMessageOrEmpty("getValidNonFalseAndValidContainedMessage: ", message);
+        return getNamedErrorMessageOrEmpty("getValidNonFalseAndValidContainedMessage", message);
     }
 
     static <T> String getValidNonFalseAndValidContainedMessage(Data<T> data, Predicate<T> validator) {
@@ -647,7 +735,7 @@ public interface CoreFormatter {
             message += isFalseMessageWithName(validator.test(data.object), "Validator test");
         }
 
-        return getNamedErrorMessageOrEmpty("getValidNonFalseAndValidContainedMessage: ", message);
+        return getNamedErrorMessageOrEmpty("getValidNonFalseAndValidContainedMessage", message);
     }
 
     static <T> Function<Data<T>, String> getValidNonFalseAndValidContainedMessage(Function<T, String> validator) {
@@ -679,7 +767,7 @@ public interface CoreFormatter {
             message += isNullOrEmptyListMessageWithName(listData.object, "List");
         }
 
-        return getNamedErrorMessageOrEmpty("isOfTypeNonEmptyMessage: ", message);
+        return getNamedErrorMessageOrEmpty("isOfTypeNonEmptyMessage", message);
     }
 
     static <T, U> Function<Data<DecoratedList<?>>, String> isValidTypedNonEmptyListMessage(Class<U> clazz) {
@@ -697,6 +785,6 @@ public interface CoreFormatter {
         }
 
         message += sb.toString();
-        return getNamedErrorMessageOrEmpty("areInvalidParametersMessage: ", message);
+        return getNamedErrorMessageOrEmpty("areInvalidParametersMessage", message);
     }
 }

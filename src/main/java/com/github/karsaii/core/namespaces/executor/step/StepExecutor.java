@@ -8,7 +8,7 @@ import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupp
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.IGetMessage;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.DataSupplierExecutionFunctions;
-import com.github.karsaii.core.namespaces.DataSupplierFactory;
+import com.github.karsaii.core.namespaces.factories.DataSupplierFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutorFunctionDataFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutionParametersDataFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutionResultDataFactory;
@@ -139,7 +139,7 @@ public interface StepExecutor {
     }
 
     static <ReturnType> DataSupplier<ExecutionResultData<ReturnType>> execute(String message, ExecutionStateData stateData, DataSupplier<?>... steps) {
-        final var localStateData = (isNotNull(stateData.indices) && !stateData.indices.isEmpty()) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
+        final var localStateData = (isNotNull(stateData) && isNotNull(stateData.indices) && !stateData.indices.isEmpty()) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
         return DataSupplierFactory.get(Executor.execute(
             ExecutionParametersDataFactory.getWithDefaultRange(
                 ExecutorFunctionDataFactory.getWithSpecificMessage(message),

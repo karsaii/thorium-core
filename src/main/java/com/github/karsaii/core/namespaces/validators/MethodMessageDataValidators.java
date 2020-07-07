@@ -19,6 +19,6 @@ public interface MethodMessageDataValidators {
             );
         }
 
-        return  getNamedErrorMessageOrEmpty("isInvalidMessage: ", message);
+        return  getNamedErrorMessageOrEmpty("isInvalidMessage", message);
     }
 }

@@ -1,10 +1,9 @@
 package com.github.karsaii.core.namespaces.validators;
 
 import com.github.karsaii.core.records.MethodParametersData;
-import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 
+import static com.github.karsaii.core.namespaces.validators.CoreFormatter.getNamedErrorMessageOrEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface MethodParametersDataValidators {
     static String isValid(MethodParametersData data) {
@@ -16,6 +15,6 @@ public interface MethodParametersDataValidators {
             );
         }
 
-        return isNotBlank(message) ? CoreFormatterConstants.PARAMETER_ISSUES_LINE + message : CoreFormatterConstants.EMPTY;
+        return getNamedErrorMessageOrEmpty("isValid", message);
     }
 }

@@ -23,7 +23,7 @@ public interface DataValidators {
             message += isInvalidParametersMessage(data);
         }
 
-        return getNamedErrorMessageOrEmpty("isInvalidMessage: ", message);
+        return getNamedErrorMessageOrEmpty("isInvalidMessage", message);
     }
 
     static String isInvalidOrFalseMessage(Data<?> data) {
@@ -32,6 +32,6 @@ public interface DataValidators {
             message += isFalseMessage(data);
         }
 
-        return getNamedErrorMessageOrEmpty("isInvalidOrFalseMessage: ", message);
+        return getNamedErrorMessageOrEmpty("isInvalidOrFalseMessage", message);
     }
 }
