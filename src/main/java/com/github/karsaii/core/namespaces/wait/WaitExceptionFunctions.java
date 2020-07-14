@@ -1,6 +1,6 @@
 package com.github.karsaii.core.namespaces.wait;
 
-import com.github.karsaii.core.constants.SystemIdentityConstants;
+import com.github.karsaii.core.constants.systemidentity.ConcreteSystemIdentityConstants;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 
 public interface WaitExceptionFunctions {
@@ -8,9 +8,9 @@ public interface WaitExceptionFunctions {
         return (
             CoreFormatterConstants.NEW_LINE +
             "System info: host: \"" +
-            SystemIdentityConstants.HOST_NAME +
+            ConcreteSystemIdentityConstants.HOST_NAME +
             "\", ip: \"" +
-            SystemIdentityConstants.HOST_ADDRESS +
+            ConcreteSystemIdentityConstants.HOST_ADDRESS +
             "\", os.name: \"" +
             System.getProperty("os.name") +
             ", os.arch: \"" +

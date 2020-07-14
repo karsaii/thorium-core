@@ -1,4 +1,4 @@
-package com.github.karsaii.core.reflection.message;
+package com.github.karsaii.core.implementations.reflection.message;
 
 import com.github.karsaii.core.records.reflection.message.InvokeCommonMessageParametersData;
 import com.github.karsaii.core.records.reflection.message.InvokeParameterizedMessageData;

@@ -1,4 +1,4 @@
-package com.github.karsaii.core.reflection;
+package com.github.karsaii.core.implementations.reflection;
 
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.MethodFunction;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
