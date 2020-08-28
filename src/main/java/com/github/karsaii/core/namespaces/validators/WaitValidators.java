@@ -1,6 +1,6 @@
 package com.github.karsaii.core.namespaces.validators;
 
-import com.github.karsaii.core.records.WaitTimeData;
+import com.github.karsaii.core.records.wait.WaitTimeData;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 
 import java.util.function.Function;

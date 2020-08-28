@@ -1,6 +1,6 @@
-package com.github.karsaii.core.namespaces.wait;
+package com.github.karsaii.core.namespaces.factories.wait;
 
-import com.github.karsaii.core.records.WaitTimeData;
+import com.github.karsaii.core.records.wait.WaitTimeData;
 import com.github.karsaii.core.constants.WaitConstants;
 
 import java.time.Clock;

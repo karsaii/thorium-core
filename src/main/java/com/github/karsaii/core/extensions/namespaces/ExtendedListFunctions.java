@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public interface ExtendedListFunctions {
     private static <T> List<T> conditionalSublist(ExtensionListData<T> data, Predicate<Supplier<Integer>> condition, List<T> list) {
-        return condition.test(list::size) ? list.subList(data.startIndex, data.endIndexFunction.apply(list)) : Collections.singletonList(data.getter.apply(list));
+        return condition.test(list::size) ? list.subList(data.startIndex, data.endIndexFunction.apply(list)) : List.of(data.getter.apply(list));
     }
 
     static <T> boolean addAllCondition(List<T> list, Collection<? extends T> c) {

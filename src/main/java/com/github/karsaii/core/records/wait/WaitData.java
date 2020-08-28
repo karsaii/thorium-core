@@ -1,4 +1,4 @@
-package com.github.karsaii.core.records;
+package com.github.karsaii.core.records.wait;
 
 import java.util.Objects;
 import java.util.function.Function;

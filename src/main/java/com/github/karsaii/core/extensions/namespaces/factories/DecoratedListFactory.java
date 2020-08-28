@@ -50,6 +50,6 @@ public interface DecoratedListFactory {
     }
 
     static <T> DecoratedList<T> getWith(T element) {
-        return getWithObjectClass(Collections.singletonList(element));
+        return getWithObjectClass(List.of(element));
     }
 }

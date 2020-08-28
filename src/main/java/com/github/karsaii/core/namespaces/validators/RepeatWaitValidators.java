@@ -1,7 +1,7 @@
 package com.github.karsaii.core.namespaces.validators;
 
 import com.github.karsaii.core.records.Data;
-import com.github.karsaii.core.records.WaitTimeData;
+import com.github.karsaii.core.records.wait.WaitTimeData;
 
 import java.util.function.BiPredicate;
 import java.util.function.Function;

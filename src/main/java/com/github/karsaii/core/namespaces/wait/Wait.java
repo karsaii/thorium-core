@@ -7,7 +7,7 @@ import com.github.karsaii.core.namespaces.executor.ExecutionStateDataFactory;
 import com.github.karsaii.core.namespaces.validators.WaitValidators;
 import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.records.Data;
-import com.github.karsaii.core.records.WaitData;
+import com.github.karsaii.core.records.wait.WaitData;
 import com.github.karsaii.core.records.executor.ExecutionResultData;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
@@ -64,7 +64,10 @@ public interface Wait {
         throw new WaitTimeoutException(message + conditionMessage);
     }
 
-    private static <ReturnType> Data<ExecutionResultData<ReturnType>> repeat(ExecutionStateData dependency, WaitData<ExecutionStateData, DataSupplier<ExecutionResultData<ReturnType>>, Data<ExecutionResultData<ReturnType>>> waitData) {
+    private static <ReturnType> Data<ExecutionResultData<ReturnType>> repeat(
+        ExecutionStateData dependency,
+        WaitData<ExecutionStateData, DataSupplier<ExecutionResultData<ReturnType>>, Data<ExecutionResultData<ReturnType>>> waitData
+    ) {
         if (CoreUtilities.areAnyNull(dependency, waitData)) {
             throw new ArgumentNullException("Starting state or StepWaitData was wrong, " + CoreFormatterConstants.WAS_NULL);
         }
