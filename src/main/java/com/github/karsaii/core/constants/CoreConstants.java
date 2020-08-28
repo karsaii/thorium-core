@@ -15,7 +15,7 @@ import java.util.function.Function;
 public abstract class CoreConstants {
     public static final Object STOCK_OBJECT = new Object();
     public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
-    public static final List<Class<?>> STOCK_METHOD_PARAMETER_TYPES = Collections.singletonList(Void.class);
+    public static final List<Class<?>> STOCK_METHOD_PARAMETER_TYPES = List.of(Void.class);
     public static final StringSet NULL_STRING_SET = new StringSet(new HashSet<>());
     public static final Exception EXCEPTION = new Exception(CoreFormatterConstants.NON_EXCEPTION_MESSAGE);
 
