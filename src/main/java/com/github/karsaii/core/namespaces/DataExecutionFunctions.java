@@ -30,8 +30,8 @@ public interface DataExecutionFunctions {
         Function<Data<ParameterType>, Data<ReturnType>> positive,
         Data<ReturnType> negative
     ) {
-        return d -> {
-            final var positiveDependency = dependency.apply(d);
+        return object -> {
+            final var positiveDependency = dependency.apply(object);
             final var guardMessage = guard.apply(positiveDependency);
             return isBlank(guardMessage) ? positive.apply(positiveDependency) : prependMessage(negative, "conditionalChain", "Dependency parameter failed the guard" + CoreFormatterConstants.COLON_SPACE + guardMessage);
         };
@@ -43,8 +43,8 @@ public interface DataExecutionFunctions {
         Function<ParameterType, Data<ReturnType>> positive,
         Data<ReturnType> negative
     ) {
-        return d -> {
-            final var positiveDependency = dependency.apply(d);
+        return object -> {
+            final var positiveDependency = dependency.apply(object);
             return guard.test(positiveDependency) ? positive.apply(positiveDependency.object) : negative;
         };
     }
@@ -55,8 +55,8 @@ public interface DataExecutionFunctions {
         Function<ParameterType, Data<ReturnType>> positive,
         Data<ReturnType> negative
     ) {
-        return d -> {
-            final var positiveDependency = dependency.apply(d);
+        return object -> {
+            final var positiveDependency = dependency.apply(object);
             final var guardMessage = guard.apply(positiveDependency);
             return isBlank(guardMessage) ? positive.apply(positiveDependency.object) : prependMessage(negative, "conditionalChain", "Dependency parameter failed the guard" + CoreFormatterConstants.COLON_SPACE + guardMessage);
         };
@@ -64,6 +64,10 @@ public interface DataExecutionFunctions {
 
     static <DependencyType, ParameterType, ReturnType> Function<DependencyType, Data<ReturnType>> validChain(Function<DependencyType, Data<ParameterType>> dependency, Function<Data<ParameterType>, Data<ReturnType>> positive, Data<ReturnType> negative) {
         return conditionalChain(CoreFormatter::isInvalidOrFalseMessage, dependency, positive, negative);
+    }
+
+    static <DependencyType, ParameterType, ReturnType> Function<DependencyType, Data<ReturnType>> validUnwrapChain(Function<DependencyType, Data<ParameterType>> dependency, Function<ParameterType, Data<ReturnType>> positive, Data<ReturnType> negative) {
+        return conditionalUnwrapChain(CoreFormatter::isInvalidOrFalseMessage, dependency, positive, negative);
     }
 
     static <ReturnType> Data<ReturnType> ifDependencyAnyCore(String nameof, Data<ReturnType> data) {
