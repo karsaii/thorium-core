@@ -13,7 +13,7 @@ public interface WaitExceptionFunctions {
             ConcreteSystemIdentityConstants.HOST_ADDRESS +
             "\", os.name: \"" +
             System.getProperty("os.name") +
-            ", os.arch: \"" +
+            "\", os.arch: \"" +
             System.getProperty("os.arch") +
             "\", os.version: \"" +
             System.getProperty("os.version") +

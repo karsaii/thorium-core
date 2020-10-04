@@ -9,7 +9,7 @@ import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.areAll
 
 public interface SizablePredicates {
     static boolean isSizeEqualTo(int size, int expected) {
-        return areAll(BasicPredicates::isNonNegative, size, expected) && Objects.equals(size, expected);
+        return BasicPredicates.isNonNegative(size) && BasicPredicates.isNonNegative(expected) && Objects.equals(size, expected);
     }
 
     static boolean isSizeEqualTo(Supplier<Integer> sizeFunction, int expected) {

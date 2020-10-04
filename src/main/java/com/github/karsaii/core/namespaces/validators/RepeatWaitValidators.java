@@ -1,5 +1,6 @@
 package com.github.karsaii.core.namespaces.validators;
 
+import com.github.karsaii.core.namespaces.validators.wait.WaitParameterValidators;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.wait.WaitTimeData;
 
@@ -14,7 +15,7 @@ public interface RepeatWaitValidators {
         final var message = (
             CoreFormatter.isNullMessageWithName(functions, "Functions") +
             CoreFormatter.isNullMessageWithName(continueCondition, "ContinueCondition") +
-            WaitValidators.validateWaitTimeData(timeData)
+            WaitParameterValidators.validateWaitTimeData(timeData)
         );
 
         return isBlank(message) ? message : ("Wait.until: " + message);

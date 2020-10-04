@@ -61,17 +61,17 @@ public class FormatterTests {
     public static Stream<Arguments> isLessThanExpectedMessageTestProvider() {
         final var baseMessage = "isLessThanExpectedMessage: " + CoreFormatterConstants.PARAMETER_ISSUES_LINE;
         return Stream.of(
-                Arguments.of("0 less than 1, parameter x", 0, 1, "x", ""),
-                Arguments.of("0 less than 1, parameter name empty", 0, 1, "", ""),
-                Arguments.of("0 less than 1, parameter name a single space", 0, 1, " ", ""),
-                Arguments.of("-1 less than 0, parameter x", -1, 0, "x", ""),
-                Arguments.of("-1 less than 0, parameter name empty", -1, 0, "", ""),
-                Arguments.of("-1 less than 0, parameter name a single space", -1, 0, " ", ""),
-                Arguments.of("1 isn't less than 0, parameter x", 1, 0, "x", baseMessage + "x(\"1\") was not less than expected(\"0\").\n"),
-                Arguments.of("0 equals 0, result is false, parameter x", 0, 0, "x", baseMessage + "x(\"0\") was not less than expected(\"0\").\n"),
-                Arguments.of("1 isn't less than 0, parameter name empty", 1, 0, "", baseMessage + "Number(\"1\") was not less than expected(\"0\").\n"),
-                Arguments.of("1 isn't less than 0, parameter name a single space", 1, 0, " ", baseMessage + "Number(\"1\") was not less than expected(\"0\").\n"),
-                Arguments.of("0 less than 1, parameter name null", 0, 1, null, baseMessage + "Function parameter - parameter name parameter was null.\n")
+            Arguments.of("0 less than 1, parameter x", 0, 1, "x", ""),
+            Arguments.of("0 less than 1, parameter name empty", 0, 1, "", ""),
+            Arguments.of("0 less than 1, parameter name a single space", 0, 1, " ", ""),
+            Arguments.of("-1 less than 0, parameter x", -1, 0, "x", ""),
+            Arguments.of("-1 less than 0, parameter name empty", -1, 0, "", ""),
+            Arguments.of("-1 less than 0, parameter name a single space", -1, 0, " ", ""),
+            Arguments.of("1 isn't less than 0, parameter x", 1, 0, "x", baseMessage + "x(\"1\") was not less than expected(\"0\").\n"),
+            Arguments.of("0 equals 0, result is false, parameter x", 0, 0, "x", baseMessage + "x(\"0\") was not less than expected(\"0\").\n"),
+            Arguments.of("1 isn't less than 0, parameter name empty", 1, 0, "", baseMessage + "Number(\"1\") was not less than expected(\"0\").\n"),
+            Arguments.of("1 isn't less than 0, parameter name a single space", 1, 0, " ", baseMessage + "Number(\"1\") was not less than expected(\"0\").\n"),
+            Arguments.of("0 less than 1, parameter name null", 0, 1, null, baseMessage + "Function parameter - parameter name parameter was null.\n")
         );
     }
 

@@ -20,7 +20,9 @@ import com.github.karsaii.core.records.formatter.NumberConditionData;
 import com.github.karsaii.core.records.reflection.message.InvokeCommonMessageParametersData;
 import com.github.karsaii.core.records.reflection.message.InvokeParameterizedMessageData;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
+import com.github.karsaii.core.records.wait.WaitTimeData;
 
+import java.time.Instant;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -187,12 +189,30 @@ public interface CoreFormatter {
         return "Method(" + methodName + ") " + getOptionMessage(status) + " found in map" + CoreFormatterConstants.END_LINE;
     }
 
-    static String getWaitErrorMessage(String message, long timeout, long interval) {
-        return CoreFormatterConstants.WAITING_FAILED + message + "Tried for " + timeout + " second(s) with " + interval + " milliseconds interval" + CoreFormatterConstants.END_LINE;
+    static String getWaitErrorMessage(String message, WaitTimeData data, Instant start, Instant end) {
+        return (
+            CoreFormatterConstants.WAITING_FAILED +
+            message +
+            "Tried for " +
+            data.duration.toSeconds() +
+            " second(s) with " +
+            data.interval.toMillis() +
+            " milliseconds interval, from start(\"" +
+            start + "\") to end(\"" + end + "\")" +
+            CoreFormatterConstants.END_LINE
+        );
     }
 
     static String getWaitInterruptMessage(String message) {
         return CoreFormatterConstants.WAITING_FAILED + "Thread interruption occurred, exception message" + CoreFormatterConstants.COLON_NEWLINE + message;
+    }
+
+    static String getWaitExpectedExceptionMessage(String message) {
+        return CoreFormatterConstants.WAITING_FAILED + "Expected exception occurred, exception message" + CoreFormatterConstants.COLON_NEWLINE + message;
+    }
+
+    static String getWaitCancellationWithoutResultMessage(String message) {
+        return CoreFormatterConstants.WAITING_FAILED + "Cancellation exception occurred with no result, exception message" + CoreFormatterConstants.COLON_NEWLINE + message;
     }
 
     static String getExecutionStepMessage(int index, String message) {

@@ -18,8 +18,7 @@
         <eclipse-collections.version>10.2.0</eclipse-collections.version>
         <commons.io.version>2.6</commons.io.version>
         <jackson.version>2.11.0</jackson.version>
-        <junit.jupiter.version>5.1.0</junit.jupiter.version>
-        <!-- Test Settings for com.github.karsaii.selenium plugin -->
+        <junit.jupiter.version>5.7.0</junit.jupiter.version>
     </properties>
     <repositories>
         <repository>

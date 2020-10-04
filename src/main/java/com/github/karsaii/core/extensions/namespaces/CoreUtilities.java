@@ -71,7 +71,7 @@ public interface CoreUtilities {
         final var checker = inverter.apply(condition);
         final var length = objects.length;
         var index = 0;
-        if (length == 1) {
+        if (SizablePredicates.isSizeEqualTo(length, 1)) {
             return checker.test(objects[index]) ? guardValue : finalValue;
         }
 
@@ -100,7 +100,7 @@ public interface CoreUtilities {
         final var guardValue = conditionData.guardValue;
         final var length = objects.length;
         var index = 0;
-        if (length == 1) {
+        if (SizablePredicates.isSizeEqualTo(length, 1)) {
             return isNotBlank(condition.apply(objects[index])) ? guardValue : finalValue;
         }
 

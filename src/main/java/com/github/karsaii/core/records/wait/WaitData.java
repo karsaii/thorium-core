@@ -1,37 +1,42 @@
 package com.github.karsaii.core.records.wait;
 
+import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
+import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
+import com.github.karsaii.core.records.wait.tasks.common.WaitTaskCommonData;
+
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class WaitData<T, U, V> {
-    public final Function<T, U> function;
-    public final Predicate<V> exitCondition;
+    public final WaitTaskCommonData<T, U, V> taskData;
     public final String conditionMessage;
     public final WaitTimeData timeData;
 
-    public WaitData(Function<T, U> function, Predicate<V> exitCondition, String conditionMessage, WaitTimeData timeData) {
-        this.function = function;
-        this.exitCondition = exitCondition;
+    public WaitData(WaitTaskCommonData<T, U, V> taskData, String conditionMessage, WaitTimeData timeData) {
+        this.taskData = taskData;
         this.conditionMessage = conditionMessage;
         this.timeData = timeData;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final var waitData = (WaitData<?, ?, ?>) o;
+        if (CoreUtilities.isEqual(this, o)) {
+            return true;
+        }
+
+        if (NullableFunctions.isNull(o) || CoreUtilities.isNotEqual(getClass(), o.getClass())) {
+            return false;
+        }
+
+        final var that = (WaitData<?, ?, ?>) o;
         return (
-            Objects.equals(function, waitData.function) &&
-            Objects.equals(exitCondition, waitData.exitCondition) &&
-            Objects.equals(conditionMessage, waitData.conditionMessage) &&
-            Objects.equals(timeData, waitData.timeData)
+            CoreUtilities.isEqual(taskData, that.taskData) &&
+            CoreUtilities.isEqual(conditionMessage, that.conditionMessage) &&
+            CoreUtilities.isEqual(timeData, that.timeData)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(function, exitCondition, conditionMessage, timeData);
+        return Objects.hash(taskData, conditionMessage, timeData);
     }
 }

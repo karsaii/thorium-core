@@ -1,4 +1,4 @@
-package com.github.karsaii.core.constants;
+package com.github.karsaii.core.constants.wait;
 
 import java.time.Clock;
 import java.time.Duration;
