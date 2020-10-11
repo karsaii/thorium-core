@@ -15,10 +15,15 @@
         <selenium.version>3.12.0</selenium.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <eclipse-collections.version>10.2.0</eclipse-collections.version>
         <commons.io.version>2.6</commons.io.version>
         <jackson.version>2.11.0</jackson.version>
         <junit.jupiter.version>5.7.0</junit.jupiter.version>
+        <aspectj.version>1.9.4</aspectj.version>
+        <allure.version>2.13.3</allure.version>
+        <allure-maven.version>2.10.0</allure-maven.version>
+        <allure.cmd.download.url>https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline</allure.cmd.download.url>
     </properties>
     <repositories>
         <repository>
@@ -50,6 +55,11 @@
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>${allure.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -88,9 +98,12 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.22.0</version>
+                        <version>${maven-surefire-plugin.version}</version>
                         <configuration>
                             <testFailureIgnore>true</testFailureIgnore>
+                            <argLine>
+                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                            </argLine>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -104,6 +117,13 @@
                                 <screenshotDirectory>${project.build.directory}/screenshots</screenshotDirectory>
                             </systemPropertyVariables>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.aspectj</groupId>
+                                <artifactId>aspectjweaver</artifactId>
+                                <version>${aspectj.version}</version>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <goals>
@@ -113,6 +133,17 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>io.qameta.allure</groupId>
+                        <artifactId>allure-maven</artifactId>
+                        <version>${allure-maven.version}</version>
+                        <configuration>
+                            <reportVersion>${allure.version}</reportVersion>
+                            <allureDownloadUrl>
+                                ${allure.cmd.download.url}/${allure.version}/allure-commandline-${allure.version}.zip
+                            </allureDownloadUrl>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

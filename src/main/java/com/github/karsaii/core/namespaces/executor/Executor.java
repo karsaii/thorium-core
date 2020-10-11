@@ -34,7 +34,7 @@ public interface Executor {
         var stepIndex = 0;
         var index = 0;
         var key = "";
-        for (; exitCondition.test(data, index, indices.size());) {
+        while (exitCondition.test(data, index, indices.size())) {
             stepIndex = indices.get(index);
             data = steps[stepIndex].apply(dependency);
             key = CoreFormatter.getExecutionResultKey(data.message.nameof, stepIndex);

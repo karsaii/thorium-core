@@ -191,17 +191,17 @@ public interface Wait {
         ), waitData);
     }
 
-    private static <T, V> V core(T dependency, WaitData<T, V, V> waitData) {
-        final var errorMessage = WaitValidators.isValidWaitParameters(dependency, waitData);
+    private static <T, V> V core(T dependency, WaitData<T, V, V> data) {
+        final var errorMessage = WaitValidators.isValidWaitParameters(dependency, data);
         if (isNotBlank(errorMessage)) {
             throw new ArgumentNullException(errorMessage);
         }
 
         return coreCore(untilTimeoutSupplier(
             Wait::runTask,
-            new WaitTask<>(Executors.newSingleThreadScheduledExecutor(), waitData.taskData, new WaitTaskStateData<>(new WaitTaskReturnData<>(null, false), dependency)),
-            waitData.timeData
-        ), waitData);
+            new WaitTask<>(Executors.newSingleThreadScheduledExecutor(), data.taskData, new WaitTaskStateData<>(new WaitTaskReturnData<>(null, false), dependency)),
+            data.timeData
+        ), data);
     }
 
     private static <ReturnType> Data<ExecutionResultData<ReturnType>> repeat(
@@ -230,6 +230,13 @@ public interface Wait {
 
     static <ReturnType> Function<ExecutionStateData, Data<ExecutionResultData<ReturnType>>> repeat(WaitData<ExecutionStateData, DataSupplier<ExecutionResultData<ReturnType>>, Data<ExecutionResultData<ReturnType>>> waitData) {
         return dependency -> repeat(dependency, waitData);
+    }
+
+    static Function<?, Void> sleepFunction(int timeout) {
+        return any -> {
+            sleep(timeout);
+            return null;
+        };
     }
 
     static <ReturnType> Data<ExecutionResultData<ReturnType>> repeatWithDefaultState(WaitData<ExecutionStateData, DataSupplier<ExecutionResultData<ReturnType>>, Data<ExecutionResultData<ReturnType>>> waitData) {
