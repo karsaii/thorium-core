@@ -2,14 +2,15 @@ package com.github.karsaii.core.records.wait.tasks.common;
 
 import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
+import com.github.karsaii.core.records.Data;
 
 import java.util.Objects;
 
 public class WaitTaskStateData<T, V> {
-    public WaitTaskReturnData<V> data;
+    public Data<V> data;
     public T dependency;
 
-    public WaitTaskStateData(WaitTaskReturnData<V> data, T dependency) {
+    public WaitTaskStateData(Data<V> data, T dependency) {
         this.data = data;
         this.dependency = dependency;
     }

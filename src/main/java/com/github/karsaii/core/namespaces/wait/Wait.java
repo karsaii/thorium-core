@@ -1,13 +1,16 @@
 package com.github.karsaii.core.namespaces.wait;
 
 import com.github.karsaii.core.constants.CoreConstants;
+import com.github.karsaii.core.constants.CoreDataConstants;
+import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
+import com.github.karsaii.core.constants.wait.WaitConstants;
 import com.github.karsaii.core.constants.wait.WaitFormatterConstants;
 import com.github.karsaii.core.exceptions.ArgumentNullException;
 import com.github.karsaii.core.exceptions.WaitTimeoutException;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupplier;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.factories.wait.WaitDataFactory;
-import com.github.karsaii.core.namespaces.factories.wait.WaitTimeDataFactory;
+import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.records.wait.tasks.repeat.WaitRepeatTask;
 import com.github.karsaii.core.records.wait.tasks.regular.WaitTask;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
@@ -21,11 +24,12 @@ import com.github.karsaii.core.records.executor.ExecutionResultData;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
 import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 import com.github.karsaii.core.records.wait.tasks.common.WaitTaskStateData;
-import com.github.karsaii.core.records.wait.tasks.common.WaitTaskReturnData;
 import com.github.karsaii.core.records.wait.WaitTimeData;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -39,16 +43,61 @@ import static com.github.karsaii.core.namespaces.DataFunctions.getMessageFromDat
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface Wait {
+    static Data<Boolean> reduceTasks(int duration, DataSupplier<?>... steps) {
+        if (NullableFunctions.isNull(steps) || (steps.length < 1) || (steps.length > 3) || (duration < 300)) {
+            throw new ArgumentNullException("x");
+        }
+
+        final var tasks = new ArrayList<CompletableFuture<? extends Data<?>>>();
+        final var startTime = WaitConstants.CLOCK.instant();
+        var index = 0;
+        final var length = steps.length;
+        for(; index < length; ++index) {
+            tasks.add(CompletableFuture.supplyAsync(steps[index].getSupplier()));
+        }
+
+        var exception = CoreConstants.EXCEPTION;
+        final var allStatus = CompletableFuture.allOf(tasks.toArray(new CompletableFuture<?>[0])).orTimeout(duration, TimeUnit.MILLISECONDS);
+        try {
+            allStatus.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            exception = ex;
+        }
+        final var stopTime = startTime.plus(duration, TimeUnit.MILLISECONDS.toChronoUnit());
+        try {
+            index = 0;
+            if (CoreUtilities.isNonException(exception) && allStatus.isDone()) {
+                while ((index < length) && DataPredicates.isValidNonFalse(tasks.get(index).get())) {
+                    ++index;
+                }
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException("Shouldn't be reachable");
+        }
+
+        final var status = index == length;
+        return DataFactoryFunctions.getWithNameAndMessage(status, status, "reduceTasks", "reduceTasks: message", exception);
+    }
+
     private static void runVoidTaskCore(WaitTask<Void, Void, Void> task) {
-        task.stateData = new WaitTaskStateData<>(new WaitTaskReturnData<>(null, true), task.stateData.dependency);
-        task.scheduler.shutdownNow();
+        if (NullableFunctions.isNotNull(task.commonData.function)) {
+            task.commonData.function.apply(null);
+        }
+        task.stateData = new WaitTaskStateData<>(
+                DataFactoryFunctions.replaceMessage(CoreDataConstants.VOID_TASK_RAN_SUCCESSFULLY, task.stateData.data.message.nameof, task.stateData.data.message.message),
+                task.stateData.dependency
+        );
+        task.scheduler.shutdown();
     }
 
     private static <T, V> void runTaskCore(WaitTask<T, V, V> task) {
         final var commonData = task.commonData;
         final var result = commonData.function.apply(task.stateData.dependency);
         if (commonData.exitCondition.test(result)) {
-            task.stateData = new WaitTaskStateData<>(new WaitTaskReturnData<>(result, true), task.stateData.dependency);
+            task.stateData = new WaitTaskStateData<>(
+                DataFactoryFunctions.getValidWithNameAndMessage(result, "runTask", "Task executed successfully" + CoreFormatterConstants.END_LINE),
+                task.stateData.dependency
+            );
             task.scheduler.shutdown();
         }
     }
@@ -57,8 +106,11 @@ public interface Wait {
         final var commonData = task.commonData;
         final var result = commonData.function.apply(task.stateData.dependency).get();
         if (commonData.exitCondition.test(result)) {
-            task.stateData = new WaitTaskStateData<>(new WaitTaskReturnData<>(result, true), result.object.stateData);
-            task.scheduler.shutdownNow();
+            task.stateData = new WaitTaskStateData<>(
+                DataFactoryFunctions.getValidWithNameAndMessage(result, "runTask", "Repeat task executed successfully" + CoreFormatterConstants.END_LINE),
+                result.object.stateData
+            );
+            task.scheduler.shutdown();
         }
     }
 
@@ -94,7 +146,7 @@ public interface Wait {
         }
 
         final var message =  NullableFunctions.isNotNull(formatter) ? formatter.apply(exception.getMessage()) : WaitFormatterConstants.TASK_SUCCESSFULLY_ENDED;
-        return DataFactoryFunctions.getWithNameAndMessage(task.stateData.data.result, task.stateData.data.status, "sleep", message, exception);
+        return DataFactoryFunctions.getWithNameAndMessage(task.stateData.data.object, task.stateData.data.status, "sleep", message, exception);
     }
 
     private static <T, U, V> Data<V> untilTimeoutCore(Runnable executable, WaitTask<T, U, V> task, WaitTimeData data) {
@@ -117,7 +169,7 @@ public interface Wait {
         }
 
         final var message =  NullableFunctions.isNotNull(formatter) ? formatter.apply(exception.getMessage()) : WaitFormatterConstants.TASK_SUCCESSFULLY_ENDED;
-        return DataFactoryFunctions.getWithNameAndMessage(task.stateData.data.result, task.stateData.data.status, "untilTimeout", message, exception);
+        return DataFactoryFunctions.getWithNameAndMessage(task.stateData.data.object, task.stateData.data.status, "untilTimeout", message, exception);
     }
 
     private static Data<Void> sleep(Function<WaitTask<Void, Void, Void>, Runnable> runner, WaitTask<Void, Void, Void> task, Duration duration) {
@@ -152,13 +204,13 @@ public interface Wait {
             return;
         }
 
-        final var conditionMessage = "Sleeping for " + waitData.timeData.duration;
+        final var conditionMessage = result.message.toString();
         var message = "";
         if (CoreUtilities.isNotEqual(result.message.message, WaitFormatterConstants.TASK_SUCCESSFULLY_ENDED)) {
             message = CoreFormatter.getWaitErrorMessage(conditionMessage, waitData.timeData, start, end);
         }
 
-        throw new WaitTimeoutException(message + conditionMessage, result.exception);
+        throw new WaitTimeoutException(message + CoreFormatterConstants.END_LINE + conditionMessage, result.exception);
     }
 
     private static <T, U, V> V coreCore(Supplier<Data<V>> supplier, WaitData<T, U, V> waitData) {
@@ -175,7 +227,7 @@ public interface Wait {
             message = CoreFormatter.getWaitErrorMessage(conditionMessage, waitData.timeData, start, end);
         }
 
-        throw new WaitTimeoutException(message + conditionMessage, result.exception);
+        throw new WaitTimeoutException(message + CoreFormatterConstants.END_LINE + conditionMessage, result.exception);
     }
 
     private static void sleep(WaitData<Void, Void, Void> waitData) {
@@ -186,7 +238,7 @@ public interface Wait {
 
         sleepCoreCore(sleepSupplier(
             Wait::runVoidTask,
-            new WaitTask<>(Executors.newSingleThreadScheduledExecutor(), waitData.taskData, new WaitTaskStateData<>(new WaitTaskReturnData<>(null, false), null)),
+            new WaitTask<>(Executors.newSingleThreadScheduledExecutor(), waitData.taskData, new WaitTaskStateData<>(DataFactoryFunctions.getInvalidWithNameAndMessage(null, "sleep", "sleep"), null)),
             waitData.timeData.duration
         ), waitData);
     }
@@ -199,7 +251,7 @@ public interface Wait {
 
         return coreCore(untilTimeoutSupplier(
             Wait::runTask,
-            new WaitTask<>(Executors.newSingleThreadScheduledExecutor(), data.taskData, new WaitTaskStateData<>(new WaitTaskReturnData<>(null, false), dependency)),
+            new WaitTask<>(Executors.newSingleThreadScheduledExecutor(), data.taskData, new WaitTaskStateData<>(DataFactoryFunctions.getInvalidWithNameAndMessage(null, "core", "core"), dependency)),
             data.timeData
         ), data);
     }
@@ -215,13 +267,13 @@ public interface Wait {
 
         return coreCore(repeatUntilTimeoutSupplier(
             Wait::runTask,
-            new WaitRepeatTask<>(Executors.newSingleThreadScheduledExecutor(), data.taskData, new WaitTaskStateData<>(new WaitTaskReturnData<>(null, false), dependency)),
+            new WaitRepeatTask<>(Executors.newSingleThreadScheduledExecutor(), data.taskData, new WaitTaskStateData<>(DataFactoryFunctions.getInvalidWithNameAndMessage(null, "repeat", "repeat"), dependency)),
             data.timeData
         ), data);
     }
 
-    static void sleep(int timeout) {
-        sleep(WaitDataFactory.getWithIntervalAndTimeout(null, null, "", 0, timeout));
+    static void sleep(int duration) {
+        sleep(WaitDataFactory.getWithSleepDuration(null, null, duration));
     }
 
     static <T, V> Function<T, V> core(WaitData<T, V, V> waitData) {

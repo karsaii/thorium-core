@@ -71,6 +71,10 @@ public interface DataFactoryFunctions {
         return getWithDefaultExceptionData(object, status, new MethodMessageData(nameof, message));
     }
 
+    static <T> Data<T> getValidWithNameAndMessage(T object, String nameof, String message) {
+        return getWithDefaultExceptionData(object, true, new MethodMessageData(nameof, message));
+    }
+
     static <T> Data<T> getInvalidWithNameAndMessage(T object, String nameof, String message) {
         return getWithNameAndMessage(object, false, nameof, message);
     }

@@ -27,4 +27,6 @@ public abstract class CoreDataConstants {
     public static final Data<StringSet> NULL_STRING_SET = DataFactoryFunctions.getWithNameAndMessage(CoreConstants.NULL_STRING_SET, false, "nullStringSet", "Null String Set data" + CoreFormatterConstants.END_LINE);
 
     public static final Data<Void> NULL_VOID = DataFactoryFunctions.getWithNameAndMessage(null, false, "nullVoid", "Void data" + CoreFormatterConstants.END_LINE);
+
+    public static final Data<Void> VOID_TASK_RAN_SUCCESSFULLY = DataFactoryFunctions.getWithMessageAndExceptionDefaults(null, true, "runVoidTaskCore", "Void task successful" + CoreFormatterConstants.END_LINE);
 }

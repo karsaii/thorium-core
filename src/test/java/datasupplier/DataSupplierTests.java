@@ -4,6 +4,7 @@ import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupp
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.executor.step.StepExecutor;
 import com.github.karsaii.core.namespaces.executor.step.StepFactory;
+import com.github.karsaii.core.namespaces.wait.Wait;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -53,5 +54,43 @@ public class DataSupplierTests {
         final var step =  StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", "Step was okay"), null);
         final var result = StepExecutor.execute("Name", step).get();
         Assertions.assertTrue(result.status, result.message.toString());
+    }
+
+    @DisplayName("Parallel step execution")
+    @Test
+    void parallelStepExecutionTest() {
+        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", "Step was okay"), null);
+        final var stepSleep = StepFactory.step((d) -> {
+
+            Wait.sleepFunction(10000).apply(null);
+            return DataFactoryFunctions.getWithNameAndMessage(true, true, "x", "Sleep was successful - 10000");
+        }, null);
+        final var stepSleepLess = StepFactory.step((d) -> {
+
+            Wait.sleepFunction(3000).apply(null);
+            return DataFactoryFunctions.getWithNameAndMessage(true, true, "x", "Sleep was successful - 3000");
+        }, null);
+
+        final var result = Wait.reduceTasks(11000, step, stepSleep, stepSleepLess);
+        Assertions.assertTrue(result.status, result.message.toString());
+    }
+
+    @DisplayName("Parallel step timeout")
+    @Test
+    void parallelStepExecutionTimeoutTest() {
+        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", "Step was okay"), null);
+        final var stepSleep = StepFactory.step((d) -> {
+
+            Wait.sleepFunction(10000).apply(null);
+            return DataFactoryFunctions.getWithNameAndMessage(true, true, "x", "Sleep was successful - 10000");
+        }, null);
+        final var stepSleepLess = StepFactory.step((d) -> {
+
+            Wait.sleepFunction(3000).apply(null);
+            return DataFactoryFunctions.getWithNameAndMessage(true, true, "x", "Sleep was successful - 3000");
+        }, null);
+
+        final var result = Wait.reduceTasks(10000, step, stepSleep, stepSleepLess);
+        Assertions.assertFalse(result.status, result.message.toString());
     }
 }
