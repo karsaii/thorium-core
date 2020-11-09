@@ -16,15 +16,7 @@ public interface DataSupplier<T> extends Function<Void, Data<T>> {
         return apply(null);
     }
 
-    default Function<Void, Data<T>> getInterfaceIdentity() {
-        return this;
-    }
-
     default Supplier<Data<T>> getSupplier() {
-        return this::apply;
-    }
-
-    default Supplier<Data<?>> getSupplierRaw() {
         return this::apply;
     }
 }

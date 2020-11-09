@@ -1,5 +1,8 @@
 package com.github.karsaii.core.records;
 
+import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
+import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
+
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -16,10 +19,20 @@ public class HandleResultData<ParameterType, ReturnType> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (CoreUtilities.isEqual(this, o)) {
+            return true;
+        }
+
+        if (NullableFunctions.isNull(o) || CoreUtilities.isNotEqual(getClass(), o.getClass())) {
+            return false;
+        }
+
         final var that = (HandleResultData<?, ?>) o;
-        return Objects.equals(caster, that.caster) && Objects.equals(parameter, that.parameter) && Objects.equals(defaultValue, that.defaultValue);
+        return (
+            CoreUtilities.isEqual(caster, that.caster) &&
+            CoreUtilities.isEqual(parameter, that.parameter) &&
+            CoreUtilities.isEqual(defaultValue, that.defaultValue)
+        );
     }
 
     @Override

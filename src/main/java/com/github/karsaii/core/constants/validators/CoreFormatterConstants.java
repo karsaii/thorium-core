@@ -23,7 +23,11 @@ public abstract class CoreFormatterConstants {
     public static final String INVOCATION_SUCCESSFUL = "Invoke execution successful" + END_LINE;
     public static final String METHOD_PUT_IN_MAP = "Method put in map" + END_LINE;
     public static final String METHOD_ALREADY_IN_MAP = "Method was already in map" + END_LINE;
-    public static final String WAITING_WAS_SUCCESSFUL = "Waiting was successful" + END_LINE;
+    public static final String SUCCESSFUL = " successful" + END_LINE;
+    public static final String WAS_SUCCESSFUL = " was successful" + END_LINE;
+    public static final String WASNT_SUCCESSFUL = " wasn't successful" + END_LINE;
+    public static final String WAITING_WAS_SUCCESSFUL = "Waiting" + WAS_SUCCESSFUL;
+    public static final String WAITING_WASNT_SUCCESSFUL = "Waiting" + WASNT_SUCCESSFUL;
     public static final String NON_EXCEPTION_MESSAGE = "No exception occurred" + END_LINE;
     public static final String PARAMETERS_WERE_WRONG = "Parameters were wrong" + END_LINE;
     public static final String DATA_NULL_OR_FALSE = "Data was null or false" + END_LINE;

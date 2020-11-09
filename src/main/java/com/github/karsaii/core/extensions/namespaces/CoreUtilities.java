@@ -1,10 +1,12 @@
 package com.github.karsaii.core.extensions.namespaces;
 
 import com.github.karsaii.core.constants.CardinalityDefaults;
+import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.extensions.interfaces.functional.QuadPredicate;
 import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
 import com.github.karsaii.core.extensions.namespaces.predicates.SizablePredicates;
 import com.github.karsaii.core.namespaces.predicates.DataPredicates;
+import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 import com.github.karsaii.core.records.CardinalityData;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
@@ -163,6 +165,10 @@ public interface CoreUtilities {
 
     static boolean castToBoolean(Object o) {
         return o instanceof Boolean ? (boolean)o : NullableFunctions.isNotNull(o);
+    }
+
+    static String castToString(Object o) {
+        return o instanceof String ? (String)o : CoreFormatterConstants.EMPTY;
     }
 
     static Boolean isStringMatchesPattern(String string, String regex) {

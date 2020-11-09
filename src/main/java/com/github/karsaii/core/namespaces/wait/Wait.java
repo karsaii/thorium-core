@@ -9,21 +9,22 @@ import com.github.karsaii.core.exceptions.ArgumentNullException;
 import com.github.karsaii.core.exceptions.WaitTimeoutException;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupplier;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
+import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
+import com.github.karsaii.core.namespaces.ExceptionHandlers;
 import com.github.karsaii.core.namespaces.factories.wait.WaitDataFactory;
 import com.github.karsaii.core.namespaces.predicates.DataPredicates;
-import com.github.karsaii.core.records.wait.tasks.repeat.WaitRepeatTask;
-import com.github.karsaii.core.records.wait.tasks.regular.WaitTask;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.executor.ExecutionStateDataFactory;
+import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 import com.github.karsaii.core.namespaces.validators.WaitValidators;
-import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.namespaces.validators.wait.WaitDataValidators;
 import com.github.karsaii.core.records.Data;
-import com.github.karsaii.core.records.wait.WaitData;
 import com.github.karsaii.core.records.executor.ExecutionResultData;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
-import com.github.karsaii.core.namespaces.validators.CoreFormatter;
+import com.github.karsaii.core.records.wait.tasks.repeat.WaitRepeatTask;
+import com.github.karsaii.core.records.wait.tasks.regular.WaitTask;
 import com.github.karsaii.core.records.wait.tasks.common.WaitTaskStateData;
+import com.github.karsaii.core.records.wait.WaitData;
 import com.github.karsaii.core.records.wait.WaitTimeData;
 
 import java.time.Duration;
@@ -56,27 +57,23 @@ public interface Wait {
             tasks.add(CompletableFuture.supplyAsync(steps[index].getSupplier()));
         }
 
-        var exception = CoreConstants.EXCEPTION;
-        final var allStatus = CompletableFuture.allOf(tasks.toArray(new CompletableFuture<?>[0])).orTimeout(duration, TimeUnit.MILLISECONDS);
-        try {
-            allStatus.get();
-        } catch (InterruptedException | ExecutionException ex) {
-            exception = ex;
-        }
+        final var all = CompletableFuture.allOf(tasks.toArray(new CompletableFuture<?>[0])).orTimeout(duration, TimeUnit.MILLISECONDS);
+        final var result = ExceptionHandlers.futureHandler(all);
         final var stopTime = startTime.plus(duration, TimeUnit.MILLISECONDS.toChronoUnit());
-        try {
-            index = 0;
-            if (CoreUtilities.isNonException(exception) && allStatus.isDone()) {
-                while ((index < length) && DataPredicates.isValidNonFalse(tasks.get(index).get())) {
-                    ++index;
-                }
+        if (!all.isDone() || DataPredicates.isInvalidOrFalse(result)) {
+            return DataFactoryFunctions.getBoolean(false, "reduceTasks", result.message.toString(), result.exception);
+        }
+        index = 0;
+        Data<?> current;
+        for (; index < length; ++index) {
+            current = ExceptionHandlers.futureHandler(tasks.get(index));
+            if (DataPredicates.isInvalidOrFalse(current)) {
+                break;
             }
-        } catch (InterruptedException | ExecutionException ex) {
-            throw new RuntimeException("Shouldn't be reachable");
         }
 
         final var status = index == length;
-        return DataFactoryFunctions.getWithNameAndMessage(status, status, "reduceTasks", "reduceTasks: message", exception);
+        return DataFactoryFunctions.getWithNameAndMessage(status, status, "reduceTasks", "reduceTasks: message", result.exception);
     }
 
     private static void runVoidTaskCore(WaitTask<Void, Void, Void> task) {

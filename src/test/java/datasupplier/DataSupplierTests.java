@@ -41,13 +41,6 @@ public class DataSupplierTests {
         Assertions.assertFalse(result.status, result.message.toString());
     }
 
-    /*@DisplayName("Nullsuppliers test - A name, an executionStateData null and a supplier null")
-    @Test
-    void nullExecutionStateDataAndSupplierTest() {
-        final var result = StepExecutor.execute("Empty Executor with Null Execution State Data", (ExecutionStateData)null, (DataSupplier)null).get();
-        Assertions.assertFalse(result.status, result.message.toString());
-    }*/
-
     @DisplayName("Single step executor")
     @Test
     void singleStepTest() {
@@ -68,10 +61,10 @@ public class DataSupplierTests {
         final var stepSleepLess = StepFactory.step((d) -> {
 
             Wait.sleepFunction(3000).apply(null);
-            return DataFactoryFunctions.getWithNameAndMessage(true, true, "x", "Sleep was successful - 3000");
+            return DataFactoryFunctions.getWithNameAndMessage(true, true, "x2", "Sleep was successful - 3000");
         }, null);
 
-        final var result = Wait.reduceTasks(11000, step, stepSleep, stepSleepLess);
+        final var result = Wait.reduceTasks(12000, step, stepSleep, stepSleepLess);
         Assertions.assertTrue(result.status, result.message.toString());
     }
 
@@ -87,7 +80,7 @@ public class DataSupplierTests {
         final var stepSleepLess = StepFactory.step((d) -> {
 
             Wait.sleepFunction(3000).apply(null);
-            return DataFactoryFunctions.getWithNameAndMessage(true, true, "x", "Sleep was successful - 3000");
+            return DataFactoryFunctions.getWithNameAndMessage(true, true, "x2", "Sleep was successful - 3000");
         }, null);
 
         final var result = Wait.reduceTasks(10000, step, stepSleep, stepSleepLess);
