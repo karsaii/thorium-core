@@ -7,6 +7,7 @@ import com.github.karsaii.core.records.executor.ExecutionStepData;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface StepFactory {
     static <DependencyType, ReturnType> DataSupplier<ReturnType> step(Function<DependencyType, Data<ReturnType>> function, DependencyType dependency) {
@@ -15,6 +16,10 @@ public interface StepFactory {
 
     static <DependencyType, ReturnType> DataSupplier<ReturnType> voidStep(Function<DependencyType, Data<ReturnType>> function) {
         return new ExecutionStepData<>(function, () -> null);
+    }
+
+    static <ReturnType> DataSupplier<ReturnType> voidStep(Supplier<Data<ReturnType>> supplier) {
+        return new ExecutionStepData<Void, ReturnType>((v) -> supplier.get(), () -> null);
     }
 
     static <DependencyType, KeyType, ReturnType> DataSupplier<ReturnType> step(Function<DependencyType, Data<ReturnType>> function, Function<KeyType, DependencyType> dependencyGetter, KeyType key) {

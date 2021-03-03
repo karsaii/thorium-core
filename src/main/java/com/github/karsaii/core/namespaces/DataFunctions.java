@@ -1,6 +1,9 @@
 package com.github.karsaii.core.namespaces;
 
+import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.exceptions.ArgumentNullException;
+import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
+import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 import com.github.karsaii.core.records.Data;
@@ -30,6 +33,24 @@ public interface DataFunctions {
 
     static <T> String getMessageFromData(T object) {
         return (object instanceof Data) ? ((Data<?>) object).message.getMessage() : String.valueOf(object);
+    }
+
+    static <T> String getStatusMessageFromData(T object) {
+        if (NullableFunctions.isNull(object)) {
+            return "Object passed" + CoreFormatterConstants.WAS_NULL;
+        }
+
+        if (!(object instanceof Data)) {
+            return String.valueOf(object);
+        }
+
+        final var data = (Data<?>) object;
+        var message = data.message.toString();
+        if (DataPredicates.isInvalidOrFalse(data) && CoreUtilities.isException(data.exception)) {
+            message += "An exception has occurred: " + data.exception.getLocalizedMessage() + CoreFormatterConstants.END_LINE + data.exceptionMessage + CoreFormatterConstants.END_LINE;
+        }
+
+        return message;
     }
 
     private static void throwIfNullCore(String name, Data<?> data) {

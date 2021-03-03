@@ -24,6 +24,13 @@ public interface AmountPredicates {
         );
     }
 
+    static boolean hasMoreThan(Object[] object, int amount) {
+        return (
+            isNonNegative(amount) &&
+            isBiggerThan(SizableFunctions.size(object), amount)
+        );
+    }
+
     static boolean isAtleastDouble(Supplier<Integer> sizeFunction) {
         return hasMoreThan(sizeFunction, 2);
     }
@@ -44,7 +51,15 @@ public interface AmountPredicates {
         return isNotNull(object) && SizablePredicates.isSizeEqualTo(object.length, 1);
     }
 
+    static boolean isDouble(Object[] object) {
+        return isNotNull(object) && SizablePredicates.isSizeEqualTo(object.length, 2);
+    }
+
     static boolean isNonZero(Object[] object) {
         return isNotNull(object) && isBiggerThan(object.length, 0);
+    }
+
+    static boolean hasIndex(Object[] object, int index) {
+        return hasMoreThan(object, index);
     }
 }
