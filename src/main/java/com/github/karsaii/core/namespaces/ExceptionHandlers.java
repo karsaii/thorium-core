@@ -1,6 +1,7 @@
 package com.github.karsaii.core.namespaces;
 
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
+import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.HandleResultData;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
@@ -48,14 +49,34 @@ public interface ExceptionHandlers {
         var exception = CoreConstants.EXCEPTION;
         try {
             task.get();
-        } catch (
-            CancellationException | InterruptedException | ExecutionException ex
-        ) {
+        } catch (CancellationException | InterruptedException | ExecutionException ex) {
             exception = ex;
         }
 
         final var status = isNonException(exception) && task.isDone();
         return DataFactoryFunctions.getBoolean(status, nameof, status ? CoreFormatterConstants.INVOCATION_SUCCESSFUL : CoreFormatterConstants.INVOCATION_EXCEPTION, exception);
+    }
+
+    static Data<Boolean> futureDataHandler(CompletableFuture<? extends Data<?>> task) {
+        final var nameof = "futureHandler";
+        if (NullableFunctions.isNull(task)) {
+            return DataFactoryFunctions.getInvalidBooleanWithNameAndMessage(nameof, "Task parameter" + CoreFormatterConstants.WAS_NULL);
+        }
+
+        var exception = CoreConstants.EXCEPTION;
+        Data<?> data = null;
+        try {
+            data = task.get();
+        } catch (CancellationException | InterruptedException | ExecutionException ex) {
+            exception = ex;
+        }
+
+        return DataFactoryFunctions.getBoolean(
+            isNonException(exception) && DataPredicates.isValidNonFalse(data),
+            nameof,
+            task.isDone() ? DataFunctions.getStatusMessageFromData(data) : CoreFormatterConstants.INVOCATION_EXCEPTION,
+            exception
+        );
     }
 
     static Data<Object> transferHandler(ClipboardData<?> data) {

@@ -32,6 +32,16 @@ public class WaitTests {
         return ++count3;
     }
 
+    private static int count32 = 0;
+    private static int increaseAndGetCount32() {
+        return ++count32;
+    }
+
+    private static int count33 = 0;
+    private static int increaseAndGetCount33() {
+        return ++count33;
+    }
+
     private static int count4 = 0;
     private static int increaseAndGetCount4() {
         return ++count4;
@@ -40,8 +50,8 @@ public class WaitTests {
     @DisplayName("Wait Repeat - one always fails second")
     @Test
     void oneFailsSecond() {
-        final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount1() == 3, "test1", "Step was okay"), null);
-        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "StringStep was oookay"), null);
+        final var countStep = StepFactory.voidStep((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount1() == 3, "test1", "Step was okay"));
+        final var trueStringStep = StepFactory.voidStep((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "StringStep was oookay"));
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
         final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
 
@@ -70,6 +80,31 @@ public class WaitTests {
         final var result = Wait.repeatWithDefaultState(waitData);
 
         Assertions.assertTrue(result.status, result.message.toString());
+    }
+
+    @DisplayName("Wait Repeat - none fails over time, limit 3")
+    @Test
+    @Tags(@Tag("slow"))
+    void noneFailsLimitThree() {
+        final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount32() == 3, "test1", "Step was okay"), null);
+        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test2", "StringStep was oookay"), null);
+        final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
+        final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 300000));
+        final var result = Wait.repeatWithDefaultState(waitData, 3);
+
+        Assertions.assertTrue(result.status, result.message.toString());
+    }
+
+    @DisplayName("Wait Repeat - none fails over time, limit 2")
+    @Test
+    @Tags(@Tag("slow"))
+    void noneFailsLimitTwo() {
+        final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount33() == 3, "test1", "Step was okay"), null);
+        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test2", "StringStep was oookay"), null);
+        final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
+        final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 300000));
+
+        Assertions.assertThrows(WaitTimeoutException.class, () -> Wait.repeatWithDefaultState(waitData, 2));
     }
 
     @DisplayName("Wait Repeat - both always fail")

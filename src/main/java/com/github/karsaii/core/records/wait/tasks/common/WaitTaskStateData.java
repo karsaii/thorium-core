@@ -5,14 +5,19 @@ import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.records.Data;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WaitTaskStateData<T, V> {
     public Data<V> data;
     public T dependency;
+    public AtomicInteger counter;
+    public int limit;
 
-    public WaitTaskStateData(Data<V> data, T dependency) {
+    public WaitTaskStateData(Data<V> data, T dependency, AtomicInteger counter, int limit) {
         this.data = data;
         this.dependency = dependency;
+        this.counter = counter;
+        this.limit = limit;
     }
 
     @Override
@@ -26,11 +31,28 @@ public class WaitTaskStateData<T, V> {
         }
 
         final var that = (WaitTaskStateData<?, ?>) o;
-        return CoreUtilities.isEqual(data, that.data) && CoreUtilities.isEqual(dependency, that.dependency);
+        return (
+            CoreUtilities.isEqual(limit, that.limit) &&
+            CoreUtilities.isEqual(data, that.data) &&
+            CoreUtilities.isEqual(dependency, that.dependency) &&
+            CoreUtilities.isEqual(counter, that.counter)
+        );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(data, dependency);
+        return Objects.hash(data, dependency, counter, limit);
+    }
+
+    @Override
+    public String toString() {
+        return (
+            "WaitTaskStateData{" +
+            "data=" + data +
+            ", dependency=" + dependency +
+            ", times=" + counter +
+            ", limit=" + limit +
+            '}'
+        );
     }
 }

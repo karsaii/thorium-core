@@ -2,6 +2,7 @@ package com.github.karsaii.core.extensions.predicates;
 
 import com.github.karsaii.core.extensions.namespaces.predicates.BasicPredicates;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -26,6 +27,7 @@ public class BasicPredicatesTests {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("isBiggerThanProvider")
+    @Tag("isBiggerThan")
     public void isBiggerThanTest(String name, int number, int limit, boolean expectedStatus, String errorMessage) {
         final var result = BasicPredicates.isBiggerThan(number, limit);
         Assertions.assertEquals(result, expectedStatus, errorMessage);

@@ -10,10 +10,22 @@ import com.github.karsaii.core.namespaces.formatter.process.ProcessFunctionsForm
 import com.github.karsaii.core.records.process.ApplicationData;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface ProcessFunctions {
+    private static List<String> getCommandList(String path, String arguments) {
+        final var commandList = new ArrayList<String>();
+        commandList.add(path);
+        commandList.addAll(Arrays.asList(arguments.split(" ")));
+
+        return commandList;
+    }
+
     static String getPlatformOrDefault(String os, String defaultOs) {
         if (isNotBlank(os)) {
             return os.contains(BasicSystemIdentityConstants.WINDOWS) ? BasicSystemIdentityConstants.WINDOWS : BasicSystemIdentityConstants.UNKNOWN;
@@ -26,9 +38,13 @@ public interface ProcessFunctions {
         return getPlatformOrDefault(os, BasicSystemIdentityConstants.UNKNOWN);
     }
 
-    static File getNullFile(String platform) {
-        final var nullFile = ProcessConstants.NULL_FILE_PLATFORM_MAP.getOrDefault(platform, ProcessConstants.ANY_NULL_FILE_PATH);
+    static File getNullFile(Map<String, String> map, String defaultNullPath, String platform) {
+        final var nullFile = map.getOrDefault(platform, defaultNullPath);
         return new File(nullFile);
+    }
+
+    static File getNullFile(String platform) {
+        return getNullFile(ProcessConstants.NULL_FILE_PLATFORM_MAP, ProcessConstants.ANY_NULL_FILE_PATH, platform);
     }
 
     static Data<ProcessBuilder> getBuilder(ApplicationData data) {
@@ -40,8 +56,8 @@ public interface ProcessFunctions {
 
         final var path = data.path;
         final var arguments = data.arguments;
-        final var builder = new ProcessBuilder().command(path, arguments);
-        final var message = ProcessFunctionsFormatter.getBuilderFormattedParametersMessage(data.name, path, arguments);
+        final var builder = new ProcessBuilder().command(getCommandList(path, arguments));
+        final var message = ProcessFunctionsFormatter.getBuilderFormattedParametersMessage(data);
 
         return DataFactoryFunctions.getWithNameAndMessage(builder, true, nameof, message);
     }

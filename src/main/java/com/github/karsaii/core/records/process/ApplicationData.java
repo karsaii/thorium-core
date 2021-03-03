@@ -1,5 +1,8 @@
 package com.github.karsaii.core.records.process;
 
+import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
+import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
+
 import java.util.Objects;
 
 public class ApplicationData {
@@ -15,10 +18,20 @@ public class ApplicationData {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (CoreUtilities.isEqual(this, o)) {
+            return true;
+        }
+
+        if (NullableFunctions.isNull(o) || CoreUtilities.isNotEqual(getClass(), o.getClass())) {
+            return false;
+        }
+
         final var that = (ApplicationData) o;
-        return Objects.equals(name, that.name) && Objects.equals(path, that.path) && Objects.equals(arguments, that.arguments);
+        return (
+            Objects.equals(name, that.name) &&
+            Objects.equals(path, that.path) &&
+            Objects.equals(arguments, that.arguments)
+        );
     }
 
     @Override

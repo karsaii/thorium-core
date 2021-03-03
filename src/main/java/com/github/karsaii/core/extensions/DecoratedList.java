@@ -1,6 +1,7 @@
 package com.github.karsaii.core.extensions;
 
 import com.github.karsaii.core.extensions.interfaces.IExtendedList;
+import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.extensions.namespaces.predicates.AmountPredicates;
 import com.github.karsaii.core.extensions.namespaces.EmptiableFunctions;
 import com.github.karsaii.core.extensions.namespaces.ExtendedListFunctions;
@@ -84,7 +85,7 @@ public class DecoratedList<T> implements IExtendedList<T> {
     }
 
     public boolean addNullSafe(T element) {
-        return isNotNull() && !Objects.isNull(element) && list.add(element);
+        return isNotNull() && NullableFunctions.isNotNull(element) && list.add(element);
     }
 
     public boolean addAllNullSafe(Collection<? extends T> c) {

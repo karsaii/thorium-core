@@ -2,12 +2,16 @@ package com.github.karsaii.core.namespaces.executor.step;
 
 import com.github.karsaii.core.constants.CoreConstants;
 import com.github.karsaii.core.constants.ExecutorConstants;
+import com.github.karsaii.core.constants.wait.WaitConstants;
+import com.github.karsaii.core.exceptions.ArgumentNullException;
 import com.github.karsaii.core.extensions.interfaces.functional.QuadFunction;
 import com.github.karsaii.core.extensions.interfaces.functional.TriPredicate;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupplier;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.IGetMessage;
+import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.DataSupplierExecutionFunctions;
+import com.github.karsaii.core.namespaces.ExceptionHandlers;
 import com.github.karsaii.core.namespaces.factories.DataSupplierFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutorFunctionDataFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutionParametersDataFactory;
@@ -15,6 +19,9 @@ import com.github.karsaii.core.namespaces.executor.ExecutionResultDataFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutionStateDataFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutionStepsDataFactory;
 import com.github.karsaii.core.namespaces.executor.Executor;
+import com.github.karsaii.core.namespaces.formatter.executor.StepExecutorFormatters;
+import com.github.karsaii.core.namespaces.predicates.DataPredicates;
+import com.github.karsaii.core.namespaces.task.TaskUtilities;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.SimpleMessageData;
 import com.github.karsaii.core.records.executor.ExecutionParametersData;
@@ -25,6 +32,8 @@ import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
@@ -214,5 +223,27 @@ public interface StepExecutor {
     static <T, U, ReturnType> Function<ExecutionStateData, DataSupplier<ExecutionResultData<ReturnType>>> conditionalSequenceState(DataSupplier<T> before, DataSupplier<U> after, Class<ReturnType> clazz) {
         return stateData -> conditionalSequence(stateData, before, after, clazz);
     }
+
+    static Data<Boolean> execute(int duration, DataSupplier<?>... steps) {
+        if (NullableFunctions.isNull(steps) || (steps.length < 2) || (steps.length > 3) || (duration < 300)) {
+            throw new ArgumentNullException("x");
+        }
+
+        final var startTime = WaitConstants.CLOCK.instant();
+        final var tasks = TaskUtilities.getTaskList(steps);
+        final var all = CompletableFuture.allOf(TaskUtilities.getTaskArray(tasks)).orTimeout(duration, TimeUnit.MILLISECONDS);
+        final var result = ExceptionHandlers.futureHandler(all);
+        final var stopTime = startTime.plus(duration, TimeUnit.MILLISECONDS.toChronoUnit());
+        if (!all.isDone() || DataPredicates.isInvalidOrFalse(result)) {
+            return DataFactoryFunctions.getBoolean(false, "reduceTasks", result.message.toString(), result.exception);
+        }
+
+        final var data = StepExecutorFormatters.getExecuteParallelTimedMessageData(tasks, startTime, stopTime);
+        final var status = data.status;
+        return DataFactoryFunctions.getWithNameAndMessage(status, status, "reduceTasks", data.message.message, result.exception);
+    }
+
+
+
 
 }
