@@ -11,7 +11,7 @@ import com.github.karsaii.core.extensions.interfaces.functional.boilers.IGetMess
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.DataSupplierExecutionFunctions;
-import com.github.karsaii.core.namespaces.ExceptionHandlers;
+import com.github.karsaii.core.namespaces.exception.TaskExceptionHandlers;
 import com.github.karsaii.core.namespaces.factories.DataSupplierFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutorFunctionDataFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutionParametersDataFactory;
@@ -56,7 +56,7 @@ public interface StepExecutor {
     ) {
         @SuppressWarnings("unchecked")
         final var negativeReturnObject = (ReturnType) CoreConstants.STOCK_OBJECT;
-        final var negative = DataFactoryFunctions.getInvalidWithNameAndMessage(ExecutionResultDataFactory.getWithDefaultState(negativeReturnObject), "execute", CoreFormatterConstants.EMPTY);
+        final var negative = DataFactoryFunctions.getInvalidWith(ExecutionResultDataFactory.getWithDefaultState(negativeReturnObject), "execute", CoreFormatterConstants.EMPTY);
         return executeGuardCore(execution, DataSupplierFactory.get(execution.executor.apply(execution.functionData, stateData, steps)), negative, steps.length);
     }
 
@@ -78,7 +78,7 @@ public interface StepExecutor {
     static <ReturnType> DataSupplier<ReturnType> execute(ExecutionParametersData<Function<Void, Data<?>>, DataSupplier<ExecutionResultData<ReturnType>>> execution, DataSupplier<?>... steps) {
         @SuppressWarnings("unchecked")
         final var negativeReturnObject = (ReturnType) CoreConstants.STOCK_OBJECT;
-        final var negative = DataFactoryFunctions.getInvalidWithNameAndMessage(negativeReturnObject, "execute", CoreFormatterConstants.EMPTY);
+        final var negative = DataFactoryFunctions.getInvalidWith(negativeReturnObject, "execute", CoreFormatterConstants.EMPTY);
         return executeGuardCore(execution, executeData(execution, steps), negative, steps.length);
     }
 
@@ -225,25 +225,22 @@ public interface StepExecutor {
     }
 
     static Data<Boolean> execute(int duration, DataSupplier<?>... steps) {
+        final var nameof = "execute";
         if (NullableFunctions.isNull(steps) || (steps.length < 2) || (steps.length > 3) || (duration < 300)) {
             throw new ArgumentNullException("x");
         }
 
-        final var startTime = WaitConstants.CLOCK.instant();
         final var tasks = TaskUtilities.getTaskList(steps);
+        final var startTime = WaitConstants.CLOCK.instant();
         final var all = CompletableFuture.allOf(TaskUtilities.getTaskArray(tasks)).orTimeout(duration, TimeUnit.MILLISECONDS);
-        final var result = ExceptionHandlers.futureHandler(all);
+        final var result = TaskExceptionHandlers.futureHandler(all);
         final var stopTime = startTime.plus(duration, TimeUnit.MILLISECONDS.toChronoUnit());
         if (!all.isDone() || DataPredicates.isInvalidOrFalse(result)) {
-            return DataFactoryFunctions.getBoolean(false, "reduceTasks", result.message.toString(), result.exception);
+            return DataFactoryFunctions.getInvalidBooleanWith(nameof, result.message.toString(), result.exception);
         }
 
         final var data = StepExecutorFormatters.getExecuteParallelTimedMessageData(tasks, startTime, stopTime);
         final var status = data.status;
-        return DataFactoryFunctions.getWithNameAndMessage(status, status, "reduceTasks", data.message.message, result.exception);
+        return DataFactoryFunctions.getWith(status, status, nameof, data.message.message, result.exception);
     }
-
-
-
-
 }

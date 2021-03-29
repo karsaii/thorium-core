@@ -51,7 +51,7 @@ public class WaitTests {
     @Test
     void oneFailsSecond() {
         final var countStep = StepFactory.voidStep((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount1() == 3, "test1", "Step was okay"));
-        final var trueStringStep = StepFactory.voidStep((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "StringStep was oookay"));
+        final var trueStringStep = StepFactory.voidStep((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test2", "StringStep was oookay"));
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
         final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
 
@@ -62,7 +62,7 @@ public class WaitTests {
     @Test
     void oneFailsFirst() {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount2() == 3, "test1", "Step was okay"), null);
-        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "StringStep was oookay"), null);
+        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test2", "StringStep was oookay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", trueStringStep, countStep);
         final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
 
@@ -74,7 +74,7 @@ public class WaitTests {
     @Tags(@Tag("slow"))
     void anoneFails() {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount3() == 3, "test1", "Step was okay"), null);
-        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test2", "StringStep was oookay"), null);
+        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test2", "StringStep was oookay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
         final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 300000));
         final var result = Wait.repeatWithDefaultState(waitData);
@@ -87,7 +87,7 @@ public class WaitTests {
     @Tags(@Tag("slow"))
     void noneFailsLimitThree() {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount32() == 3, "test1", "Step was okay"), null);
-        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test2", "StringStep was oookay"), null);
+        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test2", "StringStep was oookay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
         final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 300000));
         final var result = Wait.repeatWithDefaultState(waitData, 3);
@@ -100,7 +100,7 @@ public class WaitTests {
     @Tags(@Tag("slow"))
     void noneFailsLimitTwo() {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount33() == 3, "test1", "Step was okay"), null);
-        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test2", "StringStep was oookay"), null);
+        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test2", "StringStep was oookay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
         final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 300000));
 
@@ -111,7 +111,7 @@ public class WaitTests {
     @Test
     void waitRepeatTest() {
         final var countStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getBoolean(increaseAndGetCount4() < -1, "test1", "Step was okay"), null);
-        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "StringStep was oookay"), null);
+        final var trueStringStep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test2", "StringStep was oookay"), null);
         final var steps = StepExecutor.executeState("waitRepeat Test result message", countStep, trueStringStep);
         final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 1000));
 

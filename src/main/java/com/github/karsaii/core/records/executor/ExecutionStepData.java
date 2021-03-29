@@ -9,11 +9,11 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ExecutionStepData<T, U> implements DataSupplier<U> {
-    public final Function<T, Data<U>> step;
-    public final Supplier<T> dependency;
+public class ExecutionStepData<DependencyType, ReturnType> implements DataSupplier<ReturnType> {
+    public final Function<DependencyType, Data<ReturnType>> step;
+    public final Supplier<DependencyType> dependency;
 
-    public ExecutionStepData(Function<T, Data<U>> step, Supplier<T> dependency) {
+    public ExecutionStepData(Function<DependencyType, Data<ReturnType>> step, Supplier<DependencyType> dependency) {
         this.step = step;
         this.dependency = dependency;
     }
@@ -38,12 +38,22 @@ public class ExecutionStepData<T, U> implements DataSupplier<U> {
     }
 
     @Override
-    public Data<U> apply() {
+    public Data<ReturnType> apply() {
         return step.apply(dependency.get());
     }
 
     @Override
-    public Data<U> apply(Void o) {
+    public Data<ReturnType> apply(Void o) {
         return apply();
+    }
+
+    @Override
+    public String toString() {
+        return (
+            "ExecutionStepData{" +
+            "step=" + step +
+            ", dependency=" + dependency +
+            '}'
+        );
     }
 }

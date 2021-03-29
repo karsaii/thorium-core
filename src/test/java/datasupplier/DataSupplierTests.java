@@ -18,10 +18,10 @@ public class DataSupplierTests {
     @DisplayName("Can execute some basic stuff")
     @Test
     void canExecuteBasicStuffTest() {
-        final var stepOne = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", OKAY_MESSAGE), null);
-        final var stepOne2 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test2", OKAY_MESSAGE), null);
-        final var stepOne3 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce3", true, "test3", OKAY_MESSAGE), null);
-        final var stepTwo = StepFactory.step((String str) -> DataFactoryFunctions.getWithNameAndMessage(str, true, str + "NAME", "The message for " + str), "Johnny Applesauce");
+        final var stepOne = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test1", OKAY_MESSAGE), null);
+        final var stepOne2 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test2", OKAY_MESSAGE), null);
+        final var stepOne3 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce3", true, "test3", OKAY_MESSAGE), null);
+        final var stepTwo = StepFactory.step((String str) -> DataFactoryFunctions.getWith(str, true, str + "NAME", "The message for " + str), "Johnny Applesauce");
         final var result = StepExecutor.execute("This is smokin.", stepOne, stepOne2, stepOne3, stepTwo).get();
 
         Assertions.assertTrue(result.status, result.message.toString());
@@ -31,8 +31,8 @@ public class DataSupplierTests {
     @Test
     void conditionalSequenceTest() {
         final var result = StepExecutor.conditionalSequence(
-            StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", OKAY_MESSAGE), null),
-            StepFactory.step((String str) -> DataFactoryFunctions.getWithNameAndMessage(str, true, str + "NAME", "The message for " + str), "Johnny Applesauce"),
+            StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test1", OKAY_MESSAGE), null),
+            StepFactory.step((String str) -> DataFactoryFunctions.getWith(str, true, str + "NAME", "The message for " + str), "Johnny Applesauce"),
             Boolean.class
         ).get();
         Assertions.assertTrue(result.status, result.message.toString());
@@ -48,7 +48,7 @@ public class DataSupplierTests {
     @DisplayName("Single step executor")
     @Test
     void singleStepTest() {
-        final var step =  StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", OKAY_MESSAGE), null);
+        final var step =  StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test1", OKAY_MESSAGE), null);
         final var result = StepExecutor.execute("Name", step).get();
         Assertions.assertTrue(result.status, result.message.toString());
     }
@@ -56,7 +56,7 @@ public class DataSupplierTests {
     @DisplayName("Parallel step execution")
     @Test
     void parallelStepExecutionTest() {
-        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", OKAY_MESSAGE), null);
+        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test1", OKAY_MESSAGE), null);
         final var stepSleep = CommonSteps.sleep(10000);
         final var stepSleepLess = CommonSteps.sleep(3000);
 
@@ -67,7 +67,7 @@ public class DataSupplierTests {
     @DisplayName("Parallel step timeout")
     @Test
     void parallelStepExecutionTimeoutTest() {
-        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", OKAY_MESSAGE), null);
+        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test1", OKAY_MESSAGE), null);
         final var stepSleep = CommonSteps.sleep(10000);
         final var stepSleepLess = CommonSteps.sleep(3000);
 
@@ -78,9 +78,9 @@ public class DataSupplierTests {
     @DisplayName("One step failed")
     @Test
     void oneStepFailedTest() {
-        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test1", "Step wasn't okay" + CoreFormatterConstants.END_LINE), null);
-        final var stepSleep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", OKAY_MESSAGE), null);
-        final var stepSleepLess = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test1", OKAY_MESSAGE), null);
+        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test1", "Step wasn't okay" + CoreFormatterConstants.END_LINE), null);
+        final var stepSleep = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test1", OKAY_MESSAGE), null);
+        final var stepSleepLess = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test1", OKAY_MESSAGE), null);
 
         final var result = CommonSteps.executeParallelTimed(1000, step, stepSleep, stepSleepLess).apply();
         Assertions.assertFalse(result.status, result.message.toString());
@@ -89,9 +89,9 @@ public class DataSupplierTests {
     @DisplayName("All three steps failed")
     @Test
     void allThreeStepsTest() {
-        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test1", "Step wasn't okay" + CoreFormatterConstants.END_LINE), null);
-        final var step2 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "Step 2 wasn't okay" + CoreFormatterConstants.END_LINE), null);
-        final var step3 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test3", "Step 3 wasn't okay" + CoreFormatterConstants.END_LINE), null);
+        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test1", "Step wasn't okay" + CoreFormatterConstants.END_LINE), null);
+        final var step2 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test2", "Step 2 wasn't okay" + CoreFormatterConstants.END_LINE), null);
+        final var step3 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test3", "Step 3 wasn't okay" + CoreFormatterConstants.END_LINE), null);
 
         final var result = CommonSteps.executeParallelTimed(1000, step, step2, step3).apply();
         Assertions.assertFalse(result.status, result.message.toString());
@@ -100,9 +100,9 @@ public class DataSupplierTests {
     @DisplayName("Two steps failed, first and second")
     @Test
     void twoStepsFailedFirstandSecondTest() {
-        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test1", "Step wasn't okay" + CoreFormatterConstants.END_LINE), null);
-        final var step2 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test2", "Step 2 wasn't okay" + CoreFormatterConstants.END_LINE), null);
-        final var step3 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test3", OKAY_MESSAGE), null);
+        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test1", "Step wasn't okay" + CoreFormatterConstants.END_LINE), null);
+        final var step2 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test2", "Step 2 wasn't okay" + CoreFormatterConstants.END_LINE), null);
+        final var step3 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test3", OKAY_MESSAGE), null);
 
         final var result = CommonSteps.executeParallelTimed(1000, step, step2, step3).apply();
         Assertions.assertFalse(result.status, result.message.toString());
@@ -111,9 +111,9 @@ public class DataSupplierTests {
     @DisplayName("Two steps failed, first and third")
     @Test
     void twoStepsFailedFirstandThirdTest() {
-        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test1", "Step wasn't okay" + CoreFormatterConstants.END_LINE), null);
-        final var step2 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", true, "test2", OKAY_MESSAGE), null);
-        final var step3 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWithNameAndMessage("Applesauce", false, "test3", "Step 3 wasn't okay" + CoreFormatterConstants.END_LINE), null);
+        final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test1", "Step wasn't okay" + CoreFormatterConstants.END_LINE), null);
+        final var step2 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test2", OKAY_MESSAGE), null);
+        final var step3 = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", false, "test3", "Step 3 wasn't okay" + CoreFormatterConstants.END_LINE), null);
 
         final var result = CommonSteps.executeParallelTimed(1000, step, step2, step3).apply();
         Assertions.assertFalse(result.status, result.message.toString());

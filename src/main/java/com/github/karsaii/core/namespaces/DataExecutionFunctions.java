@@ -73,8 +73,8 @@ public interface DataExecutionFunctions {
     static <ReturnType> Data<ReturnType> ifDependencyAnyCore(String nameof, Data<ReturnType> data) {
         final var name = isNotBlank(nameof) ? nameof : "ifDependencyAnyCore";
         return isNotNull(data) ? (
-            DataFactoryFunctions.getWithNameAndMessage(data.object, data.status, DataFunctions.getNameIfAbsent(data, name), data.message.message, data.exception)
-        ) : DataFactoryFunctions.getInvalidWithNameAndMessage(null, name, "Data " + CoreFormatterConstants.WAS_NULL);
+            data
+        ) : DataFactoryFunctions.getInvalidWith(null, name, "Data " + CoreFormatterConstants.WAS_NULL);
     }
 
     private static <DependencyType, ReturnType> Data<ReturnType> ifDependencyAnyWrappedCore(DependencyType dependency, String nameof, Function<DependencyType, Data<ReturnType>> function) {

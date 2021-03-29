@@ -4,7 +4,7 @@ import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.extensions.namespaces.predicates.SizablePredicates;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.DataFunctions;
-import com.github.karsaii.core.namespaces.ExceptionHandlers;
+import com.github.karsaii.core.namespaces.exception.TaskExceptionHandlers;
 import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.records.Data;
 
@@ -36,7 +36,7 @@ public interface StepExecutorFormatters {
         return message + CoreFormatterConstants.END_LINE;
     }
 
-    static Data<String> getExecuteParallelTimedMessageData(List<CompletableFuture<? extends Data<?>>> tasks, Instant startTime, Instant stopTime) {
+    static Data<Boolean> getExecuteParallelTimedMessageData(List<CompletableFuture<? extends Data<?>>> tasks, Instant startTime, Instant stopTime) {
         final var messageBuilder = new StringBuilder(getTaskExecutionTimeMessage(startTime, stopTime));
         final var length = tasks.size();
         var passed = length;
@@ -44,7 +44,7 @@ public interface StepExecutorFormatters {
 
         Data<?> current;
         for (; index < length; ++index) {
-            current = ExceptionHandlers.futureDataHandler(tasks.get(index));
+            current = TaskExceptionHandlers.futureDataHandler(tasks.get(index));
             if (DataPredicates.isInvalidOrFalse(current)) {
                 --passed;
             }
@@ -52,11 +52,10 @@ public interface StepExecutorFormatters {
             messageBuilder.append(getTaskIndexedMessage(index + 1, DataFunctions.getStatusMessageFromData(current)));
         }
 
-        return DataFactoryFunctions.getWithNameAndMessage(
-            "\n\nexecute: " + getAmountFragmentMessage(passed, length)  + messageBuilder.toString(),
+        return DataFactoryFunctions.getBoolean(
             SizablePredicates.isSizeEqualTo(passed, length),
-            "getExecuteParallelTimedMessage",
-            ""
+            "getExecuteParallelTimedMessageData",
+            "\n\nexecute: " + getAmountFragmentMessage(passed, length)  + messageBuilder.toString()
         );
     }
 }

@@ -5,12 +5,12 @@ public class MethodInvokeException extends RuntimeException {
         super();
     }
 
-    public MethodInvokeException(String s) {
-        super(s);
+    public MethodInvokeException(String message) {
+        super(message);
     }
 
-    public MethodInvokeException(String s, Throwable throwable) {
-        super(s, throwable);
+    public MethodInvokeException(String message, Throwable throwable) {
+        super(message, throwable);
     }
 
     public MethodInvokeException(Throwable throwable) {

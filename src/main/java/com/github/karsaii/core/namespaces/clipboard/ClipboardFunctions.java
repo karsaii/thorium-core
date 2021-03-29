@@ -7,8 +7,8 @@ import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.ExceptionHandlers;
+import com.github.karsaii.core.namespaces.exception.ClipboardExceptionHandlers;
 import com.github.karsaii.core.namespaces.predicates.DataPredicates;
-import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 import com.github.karsaii.core.namespaces.validators.clipboard.ClipboardValidators;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.HandleResultData;
@@ -24,10 +24,10 @@ public interface ClipboardFunctions {
         final var nameof = "copyToClipboard";
         final var errorMessage = ClipboardValidators.isValidClipboardData(data);
         if (isNotBlank(errorMessage)) {
-            return DataFactoryFunctions.getInvalidBooleanWithNameAndMessage(nameof, errorMessage);
+            return DataFactoryFunctions.getInvalidBooleanWith(nameof, errorMessage);
         }
 
-        final var setResult = ExceptionHandlers.setContentsHandler(data.clipboard, new StringSelection(message));
+        final var setResult = ClipboardExceptionHandlers.setContentsHandler(data.clipboard, new StringSelection(message));
         if (DataPredicates.isInvalidOrFalse(setResult)) {
             return DataFactoryFunctions.replaceMessage(setResult, nameof, setResult.message.toString());
         }
@@ -35,14 +35,14 @@ public interface ClipboardFunctions {
         final var getResult = getFromClipboardCore(data);
         final var exception = getResult.exception;
         final var status = isNotBlank(getResult.object) && CoreUtilities.isNonException(exception);
-        return DataFactoryFunctions.getWithNameAndMessage(status, status, nameof, "Copying(\"" + message + "\") to clipboard was " + (status ? "" : "un") + "successful" + CoreFormatterConstants.END_LINE, exception);
+        return DataFactoryFunctions.getBoolean(status, nameof, "Copying(\"" + message + "\") to clipboard was " + (status ? "" : "un") + "successful" + CoreFormatterConstants.END_LINE, exception);
     }
 
     private static Data<String> getFromClipboardCore(ClipboardData<String> data) {
         final var nameof = "getFromClipboard";
-        final var getResult = ExceptionHandlers.transferHandler(data);
+        final var getResult = ClipboardExceptionHandlers.transferHandler(data);
         if (DataPredicates.isInvalidOrFalse(getResult)) {
-            return DataFactoryFunctions.getWithNameAndMessage(CoreFormatterConstants.EMPTY, getResult.status, nameof, getResult.message.toString(), getResult.exception);
+            return DataFactoryFunctions.getWith(CoreFormatterConstants.EMPTY, getResult.status, nameof, getResult.message.toString(), getResult.exception);
         }
 
         final var castResult = ExceptionHandlers.classCastHandler(new HandleResultData<>(data.castData.caster, getResult.object, data.castData.defaultValue));

@@ -29,10 +29,8 @@ public interface TaskUtilities {
 
     static List<CompletableFuture<? extends Data<?>>> getTaskList(DataSupplier<?>... steps) {
         final var tasks = new ArrayList<CompletableFuture<? extends Data<?>>>();
-        var index = 0;
-        final var length = steps.length;
-        for (; index < length; ++index) {
-            addToList(tasks, steps[index]);
+        for (var task : steps) {
+            addToList(tasks, task);
         }
 
         return tasks;

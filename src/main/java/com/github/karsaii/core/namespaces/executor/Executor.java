@@ -2,14 +2,8 @@ package com.github.karsaii.core.namespaces.executor;
 
 import com.github.karsaii.core.constants.CoreDataConstants;
 import com.github.karsaii.core.constants.CoreConstants;
-import com.github.karsaii.core.constants.wait.WaitConstants;
-import com.github.karsaii.core.exceptions.ArgumentNullException;
-import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupplier;
-import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.DataExecutionFunctions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
-import com.github.karsaii.core.namespaces.ExceptionHandlers;
-import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.executor.ExecutionResultData;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
@@ -19,9 +13,6 @@ import com.github.karsaii.core.records.executor.ExecutionParametersData;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 
-import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static com.github.karsaii.core.namespaces.predicates.DataPredicates.isInvalidOrFalse;
@@ -63,7 +54,7 @@ public interface Executor {
         final var message = functionData.messageData.get().apply(status) + CoreFormatterConstants.COLON_NEWLINE + functionData.endMessageHandler.apply(executionStatus, key, index, length);
         @SuppressWarnings("unchecked")
         final var returnObject = (ReturnType)data.object;
-        return DataFactoryFunctions.getWithNameAndMessage(ExecutionResultDataFactory.getWith(executionStatus, returnObject), status, "executeCore", message);
+        return DataFactoryFunctions.getWith(ExecutionResultDataFactory.getWith(executionStatus, returnObject), status, "executeCore", message);
     }
 
     @SafeVarargs
@@ -84,7 +75,7 @@ public interface Executor {
     ) {
         @SuppressWarnings("unchecked")
         final var negativeReturnObject = (ReturnType) CoreConstants.STOCK_OBJECT;
-        final var negative = DataFactoryFunctions.getInvalidWithNameAndMessage(ExecutionResultDataFactory.getWithDefaultState(negativeReturnObject), "execute", CoreFormatterConstants.EMPTY);
+        final var negative = DataFactoryFunctions.getInvalidWith(ExecutionResultDataFactory.getWithDefaultState(negativeReturnObject), "execute", CoreFormatterConstants.EMPTY);
         return executeGuardCore(execution, execution.executor.apply(execution.functionData, stateData, steps), negative, steps);
     }
 
@@ -118,7 +109,7 @@ public interface Executor {
     static <DependencyType, ReturnType> Function<DependencyType, Data<ReturnType>> execute(ExecutionParametersData<Function<DependencyType, Data<?>>, Function<DependencyType, Data<ExecutionResultData<ReturnType>>>> execution, Function<DependencyType, Data<?>>... steps) {
         @SuppressWarnings("unchecked")
         final var negativeReturnObject = (ReturnType) CoreConstants.STOCK_OBJECT;
-        final var negative = DataFactoryFunctions.getWithMessage(negativeReturnObject, false, CoreFormatterConstants.EMPTY);
+        final var negative = DataFactoryFunctions.getWith(negativeReturnObject, false, CoreFormatterConstants.EMPTY);
         return executeGuardCore(execution, executeData(execution, steps), negative, steps);
     }
 }

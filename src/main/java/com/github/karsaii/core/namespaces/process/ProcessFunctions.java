@@ -51,7 +51,7 @@ public interface ProcessFunctions {
         final var nameof = "getBuilder";
         final var errorMessage = ProcessFunctionsValidators.isValidGetBuilderParameters(data);
         if (isNotBlank(errorMessage)) {
-            return DataFactoryFunctions.getInvalidWithNameAndMessage(ProcessConstants.NULL_BUILDER, nameof, errorMessage);
+            return DataFactoryFunctions.getInvalidWith(ProcessConstants.NULL_BUILDER, nameof, errorMessage);
         }
 
         final var path = data.path;
@@ -59,14 +59,14 @@ public interface ProcessFunctions {
         final var builder = new ProcessBuilder().command(getCommandList(path, arguments));
         final var message = ProcessFunctionsFormatter.getBuilderFormattedParametersMessage(data);
 
-        return DataFactoryFunctions.getWithNameAndMessage(builder, true, nameof, message);
+        return DataFactoryFunctions.getWith(builder, true, nameof, message);
     }
 
     static Data<ProcessBuilder> getBuilderWithRedirects(ApplicationData data, String os) {
         final var nameof = "getBuilderWithRedirects";
         final var errorMessage = ProcessFunctionsValidators.isValidGetBuilderParameters(data);
         if (isNotBlank(errorMessage)) {
-            return DataFactoryFunctions.getInvalidWithNameAndMessage(ProcessConstants.NULL_BUILDER, nameof, errorMessage);
+            return DataFactoryFunctions.getInvalidWith(ProcessConstants.NULL_BUILDER, nameof, errorMessage);
         }
 
         final var builderData = getBuilder(data);

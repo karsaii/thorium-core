@@ -33,7 +33,7 @@ public interface MethodRepository {
 
     private static Data<MethodData> getMethodFromMap(HashMap<String, MethodData> methodMap, String methodName, Data<MethodData> defaultValue) {
         final var status = methodMap.containsKey(methodName);
-        return DataFactoryFunctions.getWithNameAndMessage(
+        return DataFactoryFunctions.getWith(
             status ? methodMap.get(methodName) : defaultValue.object,
             status,
             "getMethodFromMap",
@@ -52,7 +52,7 @@ public interface MethodRepository {
         final var list = data.list;
         final var methodMap = data.methodMap;
         var statusData = CoreDataConstants.NULL_BOOLEAN;
-        for (Method method : list) {
+        for (var method : list) {
             if (!validator.test(method, methodName)) {
                 continue;
             }
@@ -63,7 +63,7 @@ public interface MethodRepository {
 
         final var methodData = getMethodFromMap(methodMap, methodName, data.defaultValue);
         final var status = statusData.status && methodData.status;
-        return DataFactoryFunctions.getWithNameAndMessage(methodData.object, status, nameof, CoreFormatter.getMethodFromListMessage(methodName, status));
+        return DataFactoryFunctions.getWith(methodData.object, status, nameof, CoreFormatter.getMethodFromListMessage(methodName, status));
     }
 
     static Data<MethodData> getMethod(MethodSourceData data, MethodParametersData parameterData) {

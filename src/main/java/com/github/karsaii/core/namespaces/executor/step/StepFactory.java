@@ -15,11 +15,11 @@ public interface StepFactory {
     }
 
     static <DependencyType, ReturnType> DataSupplier<ReturnType> voidStep(Function<DependencyType, Data<ReturnType>> function) {
-        return new ExecutionStepData<>(function, () -> null);
+        return step(function, null);
     }
 
     static <ReturnType> DataSupplier<ReturnType> voidStep(Supplier<Data<ReturnType>> supplier) {
-        return new ExecutionStepData<Void, ReturnType>((v) -> supplier.get(), () -> null);
+        return step((v) -> supplier.get(), null);
     }
 
     static <DependencyType, KeyType, ReturnType> DataSupplier<ReturnType> step(Function<DependencyType, Data<ReturnType>> function, Function<KeyType, DependencyType> dependencyGetter, KeyType key) {
@@ -27,6 +27,6 @@ public interface StepFactory {
     }
 
     static <DependencyType, KeyType, ReturnType> BiFunction<Function<DependencyType, Data<ReturnType>>, KeyType, DataSupplier<ReturnType>> step(Function<KeyType, DependencyType> dependencyGetter) {
-        return (function, dependencyKey) -> new ExecutionKeyStepData<>(function, dependencyGetter, dependencyKey);
+        return (function, dependencyKey) -> step(function, dependencyGetter, dependencyKey);
     }
 }

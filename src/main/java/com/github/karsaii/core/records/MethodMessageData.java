@@ -1,20 +1,20 @@
 package com.github.karsaii.core.records;
 
-import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
+import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
+import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 public class MethodMessageData {
+    public final BiFunction<String, String, String> formatter;
     public final String nameof;
     public final String message;
 
-    public MethodMessageData(String nameof, String message) {
+    public MethodMessageData(BiFunction<String, String, String> formatter, String nameof, String message) {
+        this.formatter = formatter;
         this.nameof = nameof;
         this.message = message;
-    }
-
-    public MethodMessageData(String message) {
-        this(CoreFormatterConstants.EMPTY, message);
     }
 
     public String getMessage() {
@@ -27,15 +27,25 @@ public class MethodMessageData {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (CoreUtilities.isEqual(this, o)) {
+            return true;
+        }
+
+        if (NullableFunctions.isNull(o) || CoreUtilities.isNotEqual(getClass(), o.getClass())) {
+            return false;
+        }
+
         final var that = (MethodMessageData) o;
-        return Objects.equals(nameof, that.nameof) && Objects.equals(message, that.message);
+        return (
+            CoreUtilities.isEqual(formatter, that.formatter) &&
+            CoreUtilities.isEqual(nameof, that.nameof) &&
+            CoreUtilities.isEqual(message, that.message)
+        );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nameof, message);
+        return Objects.hash(formatter, nameof, message);
     }
 
     @Override

@@ -12,8 +12,11 @@ import com.github.karsaii.core.records.MethodMessageData;
 import java.util.Objects;
 
 import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.isException;
+import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.isNonException;
 import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
 import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNull;
+import static com.github.karsaii.core.namespaces.validators.CoreFormatter.isNullMessageWithName;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface DataFunctions {
@@ -32,12 +35,23 @@ public interface DataFunctions {
     }
 
     static <T> String getMessageFromData(T object) {
-        return (object instanceof Data) ? ((Data<?>) object).message.getMessage() : String.valueOf(object);
+        final var message = isNullMessageWithName(object, "Object");
+        if (isNotBlank(message)) {
+            return message;
+        }
+
+        if (!(object instanceof Data)) {
+            return String.valueOf(object);
+        }
+
+        final var data = ((Data<?>) object);
+        return data.message.formatter.apply(data.message.nameof, data.message.message);
     }
 
     static <T> String getStatusMessageFromData(T object) {
-        if (NullableFunctions.isNull(object)) {
-            return "Object passed" + CoreFormatterConstants.WAS_NULL;
+        final var errorMessage = isNullMessageWithName(object, "Object");
+        if (isNotBlank(errorMessage)) {
+            return errorMessage;
         }
 
         if (!(object instanceof Data)) {
@@ -54,19 +68,23 @@ public interface DataFunctions {
     }
 
     private static void throwIfNullCore(String name, Data<?> data) {
-        final var message = CoreFormatter.isNullMessageWithName(data, "Data parameter");
-        if (isNotBlank(message)) {
-            final var nameof = isNotBlank(name) ? name : "throwIfNullCore";
-            throw new ArgumentNullException(nameof + ": " + message);
+        final var message = isNullMessageWithName(data, "Data parameter");
+        if (isBlank(message)) {
+            return;
         }
+
+        final var nameof = isNotBlank(name) ? name : "throwIfNullCore";
+        throw new ArgumentNullException(nameof + ": " + message);
     }
 
     private static void throwIfExceptionCore(String name, Data<?> data) {
         final var exception = data.exception;
-        if (isException(exception)) {
-            final var nameof = isNotBlank(name) ? name : "throwIfExceptionCore";
-            throw new RuntimeException(nameof + ": " + data.exceptionMessage, exception);
+        if (isNonException(exception)) {
+            return;
         }
+
+        final var nameof = isNotBlank(name) ? name : "throwIfExceptionCore";
+        throw new RuntimeException(nameof + ": " + data.exceptionMessage, exception);
     }
 
     static void throwIfException(Data<?> data) {

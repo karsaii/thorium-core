@@ -2,12 +2,13 @@ package com.github.karsaii.core.namespaces;
 
 import org.apache.commons.lang3.StringUtils;
 
+import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public interface StringUtilities {
     private static boolean parameterGuard(String object, String expected) {
-        return isNotBlank(object) && isNotEmpty(expected);
+        return isNotNull(object) && isNotEmpty(expected);
     }
 
     static boolean contains(String object, String expected) {

@@ -44,13 +44,12 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public interface CoreFormatter {
     static String getNamedErrorMessageOrEmpty(String name, String message) {
         final var nameof = isNotBlank(name) ? name : "getNamedErrorMessageOrEmpty: (Name was empty.) ";
-        var returnMessage = "";
-        if (StringUtilities.contains(message, CoreFormatterConstants.PARAMETER_ISSUES_LINE)) {
-            returnMessage = nameof + CoreFormatterConstants.COLON_SPACE + message;
-        } else {
-            returnMessage = nameof + CoreFormatterConstants.COLON_SPACE + CoreFormatterConstants.PARAMETER_ISSUES_LINE + message;
+        if (isBlank(message)) {
+            return CoreFormatterConstants.EMPTY;
         }
-        return isNotBlank(message) ? returnMessage : CoreFormatterConstants.EMPTY;
+
+        var paramIssues = (StringUtilities.contains(message, CoreFormatterConstants.PARAMETER_ISSUES_LINE) ? CoreFormatterConstants.EMPTY : CoreFormatterConstants.PARAMETER_ISSUES_LINE);
+        return nameof + CoreFormatterConstants.COLON_SPACE + paramIssues + message;
     }
 
     static String getOptionMessage(boolean status) {
@@ -174,9 +173,9 @@ public interface CoreFormatter {
     static String getElementValueMessage(String elementName, String descriptor, String value) {
         final var name = "getValueMessage";
         final var errorMessage = (
-                isBlankMessageWithName(elementName, "Element name") +
-                isBlankMessageWithName(descriptor, "Descriptor") +
-                isNullMessageWithName(value, "Value")
+            isBlankMessageWithName(elementName, "Element name") +
+            isBlankMessageWithName(descriptor, "Descriptor") +
+            isNullMessageWithName(value, "Value")
         );
         return name + (
             isNotBlank(errorMessage) ? (
@@ -385,7 +384,7 @@ public interface CoreFormatter {
 
         if (isNotBlank(message)) {
             final var returnMessage = CoreFormatterConstants.PARAMETER_ISSUES_LINE + message;
-            return DataFactoryFunctions.getInvalidWithNameAndMessage(returnMessage, data.nameof, returnMessage);
+            return DataFactoryFunctions.getInvalidWith(returnMessage, data.nameof, returnMessage);
         }
 
         final var status = data.function.test(number, expected);
@@ -397,7 +396,7 @@ public interface CoreFormatter {
             returnMessage += object;
         }
 
-        return DataFactoryFunctions.getWithNameAndMessage(object, status, data.nameof, returnMessage);
+        return DataFactoryFunctions.getWith(object, status, data.nameof, returnMessage);
     }
 
     static Data<String> isEqualToExpected(int number, int expected, String parameterName) {
@@ -806,5 +805,9 @@ public interface CoreFormatter {
 
         message += sb.toString();
         return getNamedErrorMessageOrEmpty("areInvalidParametersMessage", message);
+    }
+
+    static String getMethodMessageDataFormatted(String nameof, String message) {
+        return nameof + ": " + message;
     }
 }
