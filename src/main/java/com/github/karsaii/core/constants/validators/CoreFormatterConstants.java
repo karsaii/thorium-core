@@ -12,8 +12,8 @@ public abstract class CoreFormatterConstants {
 
     public static final String ELEMENT = "Element ";
     public static final String EXTENSION = ".png";
-    public static final String NAME_START = "ss";
-    public static final String SS_NAME_SEPARATOR = "-";
+    public static final String SCREENSHOT_NAME_START = "ss";
+    public static final String SCREENSHOT_NAME_SEPARATOR = "-";
     public static final String EMPTY = "";
     public static final String OPTION_NOT = "not ";
     public static final String OPTION_EMPTY = "";
@@ -53,6 +53,7 @@ public abstract class CoreFormatterConstants {
     public static final String PARAMETER_ISSUES_LINE = PARAMETER_ISSUES + COLON_NEWLINE;
     public static final String VOID_CLASS_GENERIC = Void.class.toGenericString();
     public static final String WAITING_FAILED = "Waiting failed" + COLON_NEWLINE;
+    public static final String WAITING_SUCCESSFUL = "Waiting" + WAS_SUCCESSFUL + NEW_LINE;
 
     public static final String VALUE_DOES = "Value does ";
     public static final String VALUE_DOESNT = VALUE_DOES + "not ";

@@ -1,6 +1,7 @@
 package com.github.karsaii.core.namespaces;
 
 import com.github.karsaii.core.records.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -11,19 +12,17 @@ import static com.github.karsaii.core.namespaces.DataFactoryFunctions.replaceMes
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public interface BaseExecutionFunctions {
+    private static <DependencyType, ParameterType, ReturnType> ReturnType conditionalChainCore(DependencyType dependency, Function<ParameterType, Boolean> guard, Function<DependencyType, ParameterType> dependencyHandler, Function<ParameterType, ReturnType> positive, ReturnType negative) {
+        final var positiveDependency = dependencyHandler.apply(dependency);
+        return guard.apply(positiveDependency) ? positive.apply(positiveDependency) : negative;
+    }
+
     static <DependencyType, ParameterType, ReturnType> Function<DependencyType, ReturnType> conditionalChain(Predicate<ParameterType> guard, Function<DependencyType, ParameterType> dependency, Function<ParameterType, ReturnType> positive, ReturnType negative) {
-        return d -> {
-            final var positiveDependency = dependency.apply(d);
-            return guard.test(positiveDependency) ? positive.apply(positiveDependency) : negative;
-        };
+        return d -> conditionalChainCore(d, guard::test, dependency, positive, negative);
     }
 
     static <DependencyType, ParameterType, ReturnType> Function<DependencyType, ReturnType> conditionalChain(Function<ParameterType, String> guard, Function<DependencyType, ParameterType> dependency, Function<ParameterType, ReturnType> positive, ReturnType negative) {
-        return d -> {
-            final var positiveDependency = dependency.apply(d);
-            final var guardMessage = guard.apply(positiveDependency);
-            return isBlank(guardMessage) ? positive.apply(positiveDependency) : negative;
-        };
+        return d -> conditionalChainCore(d, guard.andThen(StringUtils::isBlank), dependency, positive, negative);
     }
 
     static <ReturnType> ReturnType ifDependencyAnyCore(ReturnType data) {

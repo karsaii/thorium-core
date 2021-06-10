@@ -25,7 +25,7 @@ public interface DataFactoryFunctions {
     }
 
     static <T> Data<T> getWith(T object, boolean status, MethodMessageData messageData, Exception exception) {
-        return getWith(object, status, messageData, exception, DataFactoryConstants.DEFAULT_EXCEPTION_MESSAGE);
+        return getWith(object, status, messageData, exception, exception.getLocalizedMessage());
     }
 
     static <T> Data<T> getWith(T object, boolean status, MethodMessageData messageData) {
@@ -102,6 +102,10 @@ public interface DataFactoryFunctions {
 
     static <T> Data<T> replaceMessage(Data<T> data, String message) {
         return getWith(data.object, data.status, data.message.nameof, data.message.message, data.exception, data.exceptionMessage);
+    }
+
+    static <T> Data<T> replaceObjectAndMessage(Data<?> data, T object, String message) {
+        return getWith(object, data.status, data.message.nameof, message, data.exception, data.exceptionMessage);
     }
 
     static <T> Data<T> replaceStatusAndMessage(Data<T> data, boolean status, String message) {

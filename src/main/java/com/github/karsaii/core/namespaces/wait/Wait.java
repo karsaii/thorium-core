@@ -27,7 +27,6 @@ import com.github.karsaii.core.records.executor.ExecutionResultData;
 import com.github.karsaii.core.records.executor.ExecutionStateData;
 import com.github.karsaii.core.records.wait.tasks.repeat.WaitRepeatTask;
 import com.github.karsaii.core.records.wait.tasks.regular.WaitTask;
-import com.github.karsaii.core.records.wait.tasks.common.WaitTaskStateData;
 import com.github.karsaii.core.records.wait.WaitData;
 import com.github.karsaii.core.records.wait.WaitTimeData;
 
@@ -111,39 +110,47 @@ public interface Wait {
         return () -> runTaskCore(task);
     }
 
-    private static <T, U, ReturnType> Data<ReturnType> commonCore(Runnable runnable, WaitTask<T, U, ReturnType> task) {
+    private static <T, U, ReturnType> Data<ReturnType> commonCore(Runnable runnable, WaitTask<T, U, ReturnType> task, String nameof) {
         final var result = WaitExceptionHandlers.futureInformationHandler(task, runnable);
 
         final var formatter = result.object;
         final var exception = result.exception;
         final var message =  NullableFunctions.isNotNull(formatter) ? formatter.apply(exception.getMessage()) : WaitFormatterConstants.TASK_SUCCESSFULLY_ENDED;
-        return DataFactoryFunctions.getWith(task.stateData.data.object, task.stateData.data.status, "sleep", message, exception);
+        return DataFactoryFunctions.getWith(task.stateData.data.object, task.stateData.data.status, nameof, message, exception);
     }
 
     private static Data<Void> sleepCore(Runnable runnable, WaitTask<Void, Void, Void> task, Duration duration) {
-        return commonCore(() -> {
-            try {
-                task.scheduler.schedule(runnable, duration.toMillis(), TimeUnit.MILLISECONDS).get();
-            } catch (InterruptedException ex) {
-                throw new WrappedThreadInterruptedException("Thread was interrupted, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
-            } catch (ExecutionException ex) {
-                throw new WrappedExecutionException("Exception occurred during Execution, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
-            }
-        }, task);
+        return commonCore(
+            () -> {
+                try {
+                    task.scheduler.schedule(runnable, duration.toMillis(), TimeUnit.MILLISECONDS).get();
+                } catch (InterruptedException ex) {
+                    throw new WrappedThreadInterruptedException("Thread was interrupted, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
+                } catch (ExecutionException ex) {
+                    throw new WrappedExecutionException("Exception occurred during Execution, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
+                }
+            },
+            task,
+            "sleep"
+        );
     }
 
     private static <T, U, ReturnType> Data<ReturnType> untilTimeoutCore(Runnable runnable, WaitTask<T, U, ReturnType> task, WaitTimeData data) {
-        return commonCore(() -> {
-            try {
-                task.scheduler.scheduleWithFixedDelay(runnable, 0, data.interval.toMillis(), TimeUnit.MILLISECONDS).get(data.duration.toMillis(), TimeUnit.MILLISECONDS);
-            } catch (InterruptedException ex) {
-                throw new WrappedThreadInterruptedException("Thread was interrupted, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
-            } catch (ExecutionException ex) {
-                throw new WrappedExecutionException("Exception occurred during Execution, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
-            } catch (TimeoutException ex) {
-                throw new WrappedTimeoutException("Timeout exception occurred, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
-            }
-        }, task);
+        return commonCore(
+            () -> {
+                try {
+                    task.scheduler.scheduleWithFixedDelay(runnable, 0, data.interval.toMillis(), TimeUnit.MILLISECONDS).get(data.duration.toMillis(), TimeUnit.MILLISECONDS);
+                } catch (InterruptedException ex) {
+                    throw new WrappedThreadInterruptedException("Thread was interrupted, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
+                } catch (ExecutionException ex) {
+                    throw new WrappedExecutionException("Exception occurred during Execution, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
+                } catch (TimeoutException ex) {
+                    throw new WrappedTimeoutException("Timeout exception occurred, exception is wrapped for code" + CoreFormatterConstants.END_LINE, ex);
+                }
+            },
+            task,
+            "untilTimeout"
+        );
     }
 
     private static Data<Void> sleep(Function<WaitTask<Void, Void, Void>, Runnable> runner, WaitTask<Void, Void, Void> task, Duration duration) {
@@ -174,38 +181,17 @@ public interface Wait {
         return () -> repeatUntilTimeout(runner, task, timeData);
     }
 
-    private static void sleepCoreCore(Supplier<Data<Void>> supplier, WaitData<Void, Void, Void> waitData) {
-        final var start = waitData.timeData.clock.instant();
-        final var result = supplier.get();
-        final var end = waitData.timeData.clock.instant();
-        if (CoreUtilities.isTrue(result.status)) {
-            return;
-        }
-
-        final var conditionMessage = result.message.toString();
-        var message = "";
-        if (CoreUtilities.isNotEqual(result.message.message, WaitFormatterConstants.TASK_SUCCESSFULLY_ENDED)) {
-            message = CoreFormatter.getWaitErrorMessage(conditionMessage, waitData.timeData, start, end);
-        }
-
-        throw new WaitTimeoutException(message + CoreFormatterConstants.END_LINE + conditionMessage, result.exception);
-    }
-
     private static <T, U, ReturnType> ReturnType coreCore(Supplier<Data<ReturnType>> supplier, WaitData<T, U, ReturnType> waitData) {
         final var start = waitData.timeData.clock.instant();
         final var result = supplier.get();
         final var end = waitData.timeData.clock.instant();
+        final var conditionMessage = isNotNull(result.object) ? getMessageFromData(result.object) : waitData.conditionMessage;
+        final var message = CoreFormatter.getExecutionTimeMessage(CoreUtilities.isEqual(result.message.message, WaitFormatterConstants.TASK_SUCCESSFULLY_ENDED), conditionMessage, waitData.timeData, start, end);
         if (CoreUtilities.isTrue(result.status)) {
             return result.object;
         }
 
-        final var conditionMessage = isNotNull(result.object) ? getMessageFromData(result.object) : waitData.conditionMessage;
-        var message = "";
-        if (CoreUtilities.isNotEqual(result.message.message, WaitFormatterConstants.TASK_SUCCESSFULLY_ENDED)) {
-            message = CoreFormatter.getWaitErrorMessage(conditionMessage, waitData.timeData, start, end);
-        }
-
-        throw new WaitTimeoutException(message + CoreFormatterConstants.END_LINE + conditionMessage, result.exception);
+        throw new WaitTimeoutException(message + CoreFormatterConstants.END_LINE, result.exception);
     }
 
     private static void sleep(WaitData<Void, Void, Void> data, Data<Void> initialValue) {
@@ -215,10 +201,20 @@ public interface Wait {
         }
 
         final var task = WaitTaskFactory.getWithDefaultScheduler(data.taskData, WaitTaskStateDataFactory.getWithNoRepeating(initialValue, null));
-        sleepCoreCore(sleepSupplier(Wait::runVoidTask, task, data.timeData.duration), data);
+        coreCore(sleepSupplier(Wait::runVoidTask, task, data.timeData.duration), data);
     }
 
-    private static <T, ReturnType> ReturnType core(T dependency, WaitData<T, ReturnType, ReturnType> data, Data<ReturnType> initialValue) {
+    private static <DependencyType, ReturnType> ReturnType core(DependencyType dependency, WaitData<DependencyType, ReturnType, ReturnType> data, Data<ReturnType> initialValue) {
+        final var errorMessage = WaitValidators.isValidWaitParameters(dependency, data);
+        if (isNotBlank(errorMessage)) {
+            throw new ArgumentNullException(errorMessage);
+        }
+
+        final var task = WaitTaskFactory.getWithDefaultScheduler(data.taskData, WaitTaskStateDataFactory.getWithNoRepeating(initialValue, dependency));
+        return coreCore(untilTimeoutSupplier(Wait::runTask, task, data.timeData), data);
+    }
+
+    private static <DependencyType, ReturnType> ReturnType voidCore(DependencyType dependency, WaitData<DependencyType, ReturnType, ReturnType> data, Data<ReturnType> initialValue) {
         final var errorMessage = WaitValidators.isValidWaitParameters(dependency, data);
         if (isNotBlank(errorMessage)) {
             throw new ArgumentNullException(errorMessage);
@@ -247,7 +243,11 @@ public interface Wait {
         sleep(WaitDataFactory.getWithSleepDuration(null, null, duration), WaitDataConstants.SLEEP_START_DATA);
     }
 
-    static <T, ReturnType> Function<T, ReturnType> core(WaitData<T, ReturnType, ReturnType> waitData) {
+    static <DependencyType, ReturnType> Function<DependencyType, ReturnType> voidCore(WaitData<DependencyType, ReturnType, ReturnType> waitData) {
+        return dependency -> core(dependency, waitData, DataFactoryFunctions.getInvalidWith(null, "core", "core"));
+    }
+
+    static <DependencyType, ReturnType> Function<DependencyType, ReturnType> core(WaitData<DependencyType, ReturnType, ReturnType> waitData) {
         return dependency -> core(dependency, waitData, DataFactoryFunctions.getInvalidWith(null, "core", "core"));
     }
 

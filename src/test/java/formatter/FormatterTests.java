@@ -1,8 +1,10 @@
 package formatter;
 
 import com.github.karsaii.core.constants.CommandRangeDataConstants;
+import com.github.karsaii.core.constants.DataFactoryConstants;
 import com.github.karsaii.core.constants.formatter.NumberConditionDataConstants;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
+import com.github.karsaii.core.namespaces.DataFunctions;
 import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 import org.junit.jupiter.api.Assertions;
 
@@ -18,21 +20,6 @@ import java.util.stream.Stream;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class FormatterTests {
-    @DisplayName("Default command range")
-    @Test
-    void defaultCommandRangeTest() {
-        final var result = CoreFormatter.getCommandRangeParameterMessage(CommandRangeDataConstants.DEFAULT_RANGE);
-        Assertions.assertTrue(isBlank(result), result);
-    }
-
-    @DisplayName("isNumberConditionCore with Default Executor Range")
-    @Test
-    void isNumberConditionCoreWithDefaultCommandRangeTest() {
-        final var min = CommandRangeDataConstants.DEFAULT_RANGE.min;
-        final var result = CoreFormatter.isNumberConditionCore(min, 0, "Range minimum", NumberConditionDataConstants.MORE_THAN);
-        Assertions.assertTrue(result.status, result.object + " Message:  " + result.message);
-    }
-
     public static Stream<Arguments> isLessThanExpectedProvider() {
         final var baseMessage = "isLessThanExpected: Parameters were ";
         return Stream.of(
@@ -50,14 +37,6 @@ public class FormatterTests {
         );
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("isLessThanExpectedProvider")
-    public void isLessThanExpectedTest(String name, int number, int expected, String parameterName, boolean expectedStatus, String expectedMessage) {
-        final var result = CoreFormatter.isLessThanExpected(number, expected, parameterName);
-        final var message = result.message.toString();
-        Assertions.assertTrue((Objects.equals(result.status, expectedStatus) && Objects.equals(message, expectedMessage)), message);
-    }
-
     public static Stream<Arguments> isLessThanExpectedMessageTestProvider() {
         final var baseMessage = "isLessThanExpectedMessage: " + CoreFormatterConstants.PARAMETER_ISSUES_LINE;
         return Stream.of(
@@ -73,6 +52,29 @@ public class FormatterTests {
             Arguments.of("1 isn't less than 0, parameter name a single space", 1, 0, " ", baseMessage + "Number(\"1\") was not less than expected(\"0\").\n"),
             Arguments.of("0 less than 1, parameter name null", 0, 1, null, baseMessage + "Function parameter - parameter name parameter was null.\n")
         );
+    }
+
+    @DisplayName("Default command range")
+    @Test
+    void defaultCommandRangeTest() {
+        final var result = CoreFormatter.getCommandRangeParameterMessage(CommandRangeDataConstants.DEFAULT_RANGE);
+        Assertions.assertTrue(isBlank(result), result);
+    }
+
+    @DisplayName("isNumberConditionCore with Default Executor Range")
+    @Test
+    void isNumberConditionCoreWithDefaultCommandRangeTest() {
+        final var min = CommandRangeDataConstants.DEFAULT_RANGE.min;
+        final var result = CoreFormatter.isNumberConditionCore(min, 0, "Range minimum", NumberConditionDataConstants.MORE_THAN);
+        Assertions.assertTrue(result.status, result.object + " Message:  " + result.message);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("isLessThanExpectedProvider")
+    public void isLessThanExpectedTest(String name, int number, int expected, String parameterName, boolean expectedStatus, String expectedMessage) {
+        final var result = CoreFormatter.isLessThanExpected(number, expected, parameterName);
+        final var message = DataFunctions.getFormattedMessage(result);
+        Assertions.assertTrue((Objects.equals(result.status, expectedStatus) && Objects.equals(message, expectedMessage)), message);
     }
 
     @ParameterizedTest(name = "{0}")

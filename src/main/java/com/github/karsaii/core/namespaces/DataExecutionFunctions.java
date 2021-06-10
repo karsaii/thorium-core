@@ -66,6 +66,10 @@ public interface DataExecutionFunctions {
         return conditionalChain(CoreFormatter::isInvalidOrFalseMessage, dependency, positive, negative);
     }
 
+    static <DependencyType, ParameterType, ReturnType> Function<Data<ReturnType>, Function<DependencyType, Data<ReturnType>>> validChain(Function<DependencyType, Data<ParameterType>> dependency, Function<Data<ParameterType>, Data<ReturnType>> positive) {
+        return negative -> validChain(dependency, positive, negative);
+    }
+
     static <DependencyType, ParameterType, ReturnType> Function<DependencyType, Data<ReturnType>> validUnwrapChain(Function<DependencyType, Data<ParameterType>> dependency, Function<ParameterType, Data<ReturnType>> positive, Data<ReturnType> negative) {
         return conditionalUnwrapChain(CoreFormatter::isInvalidOrFalseMessage, dependency, positive, negative);
     }

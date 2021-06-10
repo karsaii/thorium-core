@@ -23,8 +23,9 @@ import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.records.wait.WaitTimeData;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -188,17 +189,13 @@ public interface CoreFormatter {
         return "Method(" + methodName + ") " + getOptionMessage(status) + " found in map" + CoreFormatterConstants.END_LINE;
     }
 
-    static String getWaitErrorMessage(String message, WaitTimeData data, Instant start, Instant end) {
+    static String getExecutionTimeMessage(boolean success, String message, WaitTimeData data, Instant startTime, Instant stopTime) {
+        final var localMessage = "\t" + (StringUtilities.endsWithCaseInsensitive(message, "\n") ? message : message + "\n");
         return (
-            CoreFormatterConstants.WAITING_FAILED +
-            message +
-            "Tried for " +
-            data.duration.toSeconds() +
-            " second(s) with " +
-            data.interval.toMillis() +
-            " milliseconds interval, from start(\"" +
-            start + "\") to end(\"" + end + "\")" +
-            CoreFormatterConstants.END_LINE
+            (success ? CoreFormatterConstants.WAITING_SUCCESSFUL : CoreFormatterConstants.WAITING_FAILED) +
+            localMessage +
+            "\tExecution ran from time(\"" + startTime.toString() + "\") to (\"" + stopTime.toString() + "\")" + CoreFormatterConstants.END_LINE +
+            "\tDuration(\"" + data.duration.toMillis() + "\" milliseconds), actually ran for " + ChronoUnit.MILLIS.between(startTime, stopTime) + " milliseconds, with " + data.interval.toMillis() + " milliseconds interval" + CoreFormatterConstants.END_LINE
         );
     }
 
@@ -316,12 +313,11 @@ public interface CoreFormatter {
         return status ? CoreFormatterConstants.SUCCESSFULLY_EXECUTE : CoreFormatterConstants.COULDNT_EXECUTE;
     }
 
-    static String getScreenshotFileName(String path) {
-        return (
-            path +
-            String.join(CoreFormatterConstants.SS_NAME_SEPARATOR, CoreFormatterConstants.NAME_START, LocalTime.now().toString(), UUID.randomUUID().toString()) +
-            CoreFormatterConstants.EXTENSION
-        );
+    static String getScreenshotFileName(String path, String fileName) {
+        final var localTime = Long.toString(Instant.now().toEpochMilli());
+        final var uuid = UUID.randomUUID().toString();
+        var localFilename = isNotBlank(fileName) ? fileName : CoreFormatterConstants.SCREENSHOT_NAME_START;
+        return path + String.join(CoreFormatterConstants.SCREENSHOT_NAME_SEPARATOR, localTime, uuid, localFilename) + CoreFormatterConstants.EXTENSION;
     }
 
     static String getMethodFromListMessage(String methodName, boolean status) {
@@ -808,6 +804,7 @@ public interface CoreFormatter {
     }
 
     static String getMethodMessageDataFormatted(String nameof, String message) {
-        return nameof + ": " + message;
+        final var separator = ": ";
+        return StringUtilities.startsWithCaseInsensitive(message, nameof + separator) ? message : nameof + separator + message;
     }
 }

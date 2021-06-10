@@ -59,9 +59,10 @@ public interface DataFunctions {
         }
 
         final var data = (Data<?>) object;
-        var message = data.message.toString();
+        final var messageData = data.message;
+        var message = messageData.formatter.apply(messageData.nameof, messageData.message);
         if (DataPredicates.isInvalidOrFalse(data) && CoreUtilities.isException(data.exception)) {
-            message += "An exception has occurred: " + data.exception.getLocalizedMessage() + CoreFormatterConstants.END_LINE + data.exceptionMessage + CoreFormatterConstants.END_LINE;
+            message += "\tAn exception has occurred: " + data.exceptionMessage + CoreFormatterConstants.END_LINE;
         }
 
         return message;
@@ -112,5 +113,10 @@ public interface DataFunctions {
 
     static <T> MethodMessageData getMethodMessageData(Data<T> data) {
         return data.message;
+    }
+
+    static <T> String getFormattedMessage(Data<T> data) {
+        final var message = data.message;
+        return message.formatter.apply(message.nameof, message.message);
     }
 }

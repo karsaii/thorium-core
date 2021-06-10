@@ -17,14 +17,6 @@ public class MethodMessageData {
         this.message = message;
     }
 
-    public String getMessage() {
-        return nameof + ": " + message;
-    }
-
-    public String getMessage(String nameof) {
-        return nameof + message;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (CoreUtilities.isEqual(this, o)) {
@@ -50,6 +42,12 @@ public class MethodMessageData {
 
     @Override
     public String toString() {
-        return getMessage();
+        return (
+            "MethodMessageData{" +
+            "formatter=" + formatter +
+            ", nameof='" + nameof + '\'' +
+            ", message='" + message + '\'' +
+            '}'
+        );
     }
 }

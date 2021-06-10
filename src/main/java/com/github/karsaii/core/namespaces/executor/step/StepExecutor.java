@@ -8,7 +8,9 @@ import com.github.karsaii.core.extensions.interfaces.functional.QuadFunction;
 import com.github.karsaii.core.extensions.interfaces.functional.TriPredicate;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.DataSupplier;
 import com.github.karsaii.core.extensions.interfaces.functional.boilers.IGetMessage;
+import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
+import com.github.karsaii.core.extensions.namespaces.concurrent.CompletableFutureExtensions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
 import com.github.karsaii.core.namespaces.DataSupplierExecutionFunctions;
 import com.github.karsaii.core.namespaces.exception.TaskExceptionHandlers;
@@ -20,7 +22,6 @@ import com.github.karsaii.core.namespaces.executor.ExecutionStateDataFactory;
 import com.github.karsaii.core.namespaces.executor.ExecutionStepsDataFactory;
 import com.github.karsaii.core.namespaces.executor.Executor;
 import com.github.karsaii.core.namespaces.formatter.executor.StepExecutorFormatters;
-import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.namespaces.task.TaskUtilities;
 import com.github.karsaii.core.records.Data;
 import com.github.karsaii.core.records.SimpleMessageData;
@@ -32,8 +33,6 @@ import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.namespaces.validators.CoreFormatter;
 
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
@@ -136,7 +135,7 @@ public interface StepExecutor {
     }
 
     static <ReturnType> DataSupplier<ExecutionResultData<ReturnType>> execute(IGetMessage stepMessage, ExecutionStateData stateData, DataSupplier<?>... steps) {
-        final var localStateData = (isNotNull(stateData.indices) && !stateData.indices.isEmpty()) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
+        final var localStateData = (isNotNull(stateData.indices) && CoreUtilities.isFalse(stateData.indices.isEmpty())) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
         return DataSupplierFactory.get(Executor.execute(
             ExecutionParametersDataFactory.getWithDefaultRange(
                 ExecutorFunctionDataFactory.getWithExecuteParametersDataAndDefaultExitCondition(stepMessage, ExecutorConstants.DEFAULT_EXECUTION_DATA),
@@ -148,7 +147,7 @@ public interface StepExecutor {
     }
 
     static <ReturnType> DataSupplier<ExecutionResultData<ReturnType>> execute(String message, ExecutionStateData stateData, DataSupplier<?>... steps) {
-        final var localStateData = (isNotNull(stateData) && isNotNull(stateData.indices) && !stateData.indices.isEmpty()) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
+        final var localStateData = (isNotNull(stateData) && isNotNull(stateData.indices) && CoreUtilities.isFalse(stateData.indices.isEmpty())) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
         return DataSupplierFactory.get(Executor.execute(
             ExecutionParametersDataFactory.getWithDefaultRange(
                 ExecutorFunctionDataFactory.getWithSpecificMessage(message),
@@ -160,7 +159,7 @@ public interface StepExecutor {
     }
 
     static <ReturnType> DataSupplier<ExecutionResultData<ReturnType>> execute(QuadFunction<ExecutionStateData, String, Integer, Integer, String> messageHandler, ExecutionStateData stateData, DataSupplier<?>... steps) {
-        final var localStateData = (isNotNull(stateData.indices) && !stateData.indices.isEmpty()) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
+        final var localStateData = (isNotNull(stateData.indices) && CoreUtilities.isFalse(stateData.indices.isEmpty())) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
         return DataSupplierFactory.get(Executor.execute(
             ExecutionParametersDataFactory.getWithTwoCommandsRange(
                 ExecutorFunctionDataFactory.getWithDefaultExitConditionAndMessageData(messageHandler),
@@ -172,14 +171,14 @@ public interface StepExecutor {
     }
 
     static <ReturnType> DataSupplier<ExecutionResultData<ReturnType>> execute(ExecutionStateData stateData, DataSupplier<?>... steps) {
-        final var localStateData = (isNotNull(stateData.indices) && !stateData.indices.isEmpty()) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
+        final var localStateData = (isNotNull(stateData.indices) && CoreUtilities.isFalse(stateData.indices.isEmpty())) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
         return DataSupplierFactory.get(Executor.execute(ExecutionParametersDataFactory.getWithDefaultFunctionDataAndDefaultRange(Executor::execute), localStateData, steps));
     }
 
 
     static <ReturnType> DataSupplier<ExecutionResultData<ReturnType>> conditionalSequence(TriPredicate<Data<?>, Integer, Integer> guard, ExecutionStateData stateData, DataSupplier<?> before, DataSupplier<?> after) {
         final DataSupplier<?>[] steps = Arrays.asList(before, after).toArray(new DataSupplier<?>[0]);
-        final var localStateData = (isNotNull(stateData.indices) && !stateData.indices.isEmpty()) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
+        final var localStateData = (isNotNull(stateData.indices) && CoreUtilities.isFalse(stateData.indices.isEmpty())) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
         return DataSupplierFactory.get(Executor.execute(
             ExecutionParametersDataFactory.getWithTwoCommandsRange(
                 ExecutorFunctionDataFactory.getWithSpecificMessageDataAndBreakCondition(new SimpleMessageData(CoreFormatterConstants.EXECUTION_ENDED), guard),
@@ -192,7 +191,7 @@ public interface StepExecutor {
 
     static <T, U, ReturnType> DataSupplier<ExecutionResultData<ReturnType>> conditionalSequence(ExecutionStateData stateData, DataSupplier<T> before, DataSupplier<U> after, Class<ReturnType> clazz) {
         final DataSupplier<?>[] steps = Arrays.asList(before, after).toArray(new DataSupplier<?>[0]);
-        final var localStateData = (isNotNull(stateData.indices) && !stateData.indices.isEmpty()) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
+        final var localStateData = (isNotNull(stateData.indices) && CoreUtilities.isFalse(stateData.indices.isEmpty())) ? stateData : ExecutionStateDataFactory.getWith(stateData.executionMap, steps.length);
         return DataSupplierFactory.get(Executor.execute(
             ExecutionParametersDataFactory.getWithDefaultFunctionDataAndTwoCommandRange(Executor::execute),
             localStateData,
@@ -230,17 +229,28 @@ public interface StepExecutor {
             throw new ArgumentNullException("x");
         }
 
-        final var tasks = TaskUtilities.getTaskList(steps);
+        final var tasks = TaskUtilities.getTaskListWithTimeouts(duration, steps);
         final var startTime = WaitConstants.CLOCK.instant();
-        final var all = CompletableFuture.allOf(TaskUtilities.getTaskArray(tasks)).orTimeout(duration, TimeUnit.MILLISECONDS);
+        final var all = CompletableFutureExtensions.allOfTerminateOnFailureTimed(duration, TaskUtilities.getTaskArray(tasks));
         final var result = TaskExceptionHandlers.futureHandler(all);
-        final var stopTime = startTime.plus(duration, TimeUnit.MILLISECONDS.toChronoUnit());
-        if (!all.isDone() || DataPredicates.isInvalidOrFalse(result)) {
-            return DataFactoryFunctions.getInvalidBooleanWith(nameof, result.message.toString(), result.exception);
+        final var data = StepExecutorFormatters.getExecuteAllParallelTimedMessageData(tasks, all, result, startTime, WaitConstants.CLOCK.instant(), duration);
+        final var status = data.status;
+        return DataFactoryFunctions.getBoolean(status, nameof, data.message.message, result.exception);
+    }
+
+    static Data<Boolean> executeEndOnAnyResult(int duration, DataSupplier<?>... steps) {
+        final var nameof = "executeEndOnAnyResult";
+        if (NullableFunctions.isNull(steps) || (steps.length < 2) || (steps.length > 3) || (duration < 300)) {
+            throw new ArgumentNullException("x");
         }
 
-        final var data = StepExecutorFormatters.getExecuteParallelTimedMessageData(tasks, startTime, stopTime);
+        final var tasks = TaskUtilities.getTaskListWithTimeouts(duration, steps);
+        final var startTime = WaitConstants.CLOCK.instant();
+        final var all = CompletableFutureExtensions.anyOfTerminateOnFailureTimed(duration, TaskUtilities.getTaskArray(tasks));
+        final var result = TaskExceptionHandlers.futureHandler(all);
+        final var data = StepExecutorFormatters.getExecuteAnyParallelTimedMessageData(tasks, all, result, startTime, WaitConstants.CLOCK.instant(), duration);
         final var status = data.status;
-        return DataFactoryFunctions.getWith(status, status, nameof, data.message.message, result.exception);
+        return DataFactoryFunctions.getBoolean(status, nameof, data.message.message, result.exception);
     }
+    /*static Data<Boolean>*/
 }

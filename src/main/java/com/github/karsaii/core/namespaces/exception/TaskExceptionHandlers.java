@@ -13,6 +13,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static com.github.karsaii.core.extensions.namespaces.CoreUtilities.isNonException;
+import static com.github.karsaii.core.extensions.namespaces.NullableFunctions.isNotNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface TaskExceptionHandlers {
     static <T> Data<Boolean> futureHandler(CompletableFuture<T> task) {
@@ -46,10 +48,10 @@ public interface TaskExceptionHandlers {
             exception = ex;
         }
 
-        final var status = isNonException(exception) && DataPredicates.isValidNonFalse(data);
+        final var isNotBlank = isNotNull(data) && isNotNull(data.message) && isNotBlank(data.message.nameof);
         return DataFactoryFunctions.getBoolean(
-            status,
-            nameof,
+            isNonException(exception) && DataPredicates.isValidNonFalse(data),
+            isNotBlank ? data.message.nameof : nameof,
             task.isDone() ? DataFunctions.getStatusMessageFromData(data) : CoreFormatterConstants.INVOCATION_EXCEPTION,
             exception
         );
