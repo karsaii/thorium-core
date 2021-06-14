@@ -20,6 +20,23 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface DataFunctions {
+    static <T> T getObject(Data<T> data) {
+        return data.object;
+    }
+
+    static <T> boolean getStatus(Data<T> data) {
+        return data.status;
+    }
+
+    static <T> MethodMessageData getMethodMessageData(Data<T> data) {
+        return data.message;
+    }
+
+    static String getFormattedMessage(Data data) {
+        final var message = data.message;
+        return message.formatter.apply(message.nameof, message.message);
+    }
+
     static String getNameIfAbsent(Data<?> data, String nameof) {
         var name = "";
         if (isNotNull(data)) {
@@ -45,7 +62,7 @@ public interface DataFunctions {
         }
 
         final var data = ((Data<?>) object);
-        return data.message.formatter.apply(data.message.nameof, data.message.message);
+        return getFormattedMessage(data);
     }
 
     static <T> String getStatusMessageFromData(T object) {
@@ -99,24 +116,9 @@ public interface DataFunctions {
         throwIfNullCore(nameof, data);
         if (DataPredicates.isInvalidOrFalse(data)) {
             throwIfException(data);
-            throw new IllegalStateException(nameof + ": " + data.message.toString());
+            throw new IllegalStateException(nameof + ": " + getFormattedMessage(data));
         }
     }
 
-    static <T> T getObject(Data<T> data) {
-        return data.object;
-    }
 
-    static <T> boolean getStatus(Data<T> data) {
-        return data.status;
-    }
-
-    static <T> MethodMessageData getMethodMessageData(Data<T> data) {
-        return data.message;
-    }
-
-    static <T> String getFormattedMessage(Data<T> data) {
-        final var message = data.message;
-        return message.formatter.apply(message.nameof, message.message);
-    }
 }

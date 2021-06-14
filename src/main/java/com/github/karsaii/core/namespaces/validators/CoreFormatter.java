@@ -10,6 +10,7 @@ import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.extensions.namespaces.EmptiableFunctions;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
+import com.github.karsaii.core.namespaces.DataFunctions;
 import com.github.karsaii.core.namespaces.StringUtilities;
 import com.github.karsaii.core.namespaces.predicates.DataPredicates;
 import com.github.karsaii.core.records.Data;
@@ -23,8 +24,6 @@ import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.records.wait.WaitTimeData;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
@@ -261,11 +260,11 @@ public interface CoreFormatter {
         if (BasicPredicates.isPositiveNonZero((int)failedValueAmount)) {
             for (var stepIndex = 0; stepIndex < valuesLength; ++stepIndex) {
                 step = values[stepIndex];
-                builder.append(getExecutionStepMessage(stepIndex, (DataPredicates.isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + step.message.toString()));
+                builder.append(getExecutionStepMessage(stepIndex, (DataPredicates.isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + DataFunctions.getFormattedMessage(step)));
             }
         } else {
             step = map.get(key);
-            builder.append(getExecutionStepMessage(valuesLength - 1, (DataPredicates.isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + step.message.toString()));
+            builder.append(getExecutionStepMessage(valuesLength - 1, (DataPredicates.isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + DataFunctions.getFormattedMessage(step)));
         }
 
         final var message = (
@@ -295,7 +294,7 @@ public interface CoreFormatter {
         Data<?> step;
         for(; stepIndex < valuesLength; ++stepIndex) {
             step = values[stepIndex];
-            builder.append(getExecutionStepMessage(stepIndex, (DataPredicates.isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + step.message.toString()));
+            builder.append(getExecutionStepMessage(stepIndex, (DataPredicates.isValidNonFalse(step) ? "Passed" : "Failed") + CoreFormatterConstants.COLON_SPACE + DataFunctions.getFormattedMessage(step)));
         }
 
         final var message = (

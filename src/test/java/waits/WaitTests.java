@@ -3,6 +3,7 @@ package waits;
 import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.exceptions.WaitTimeoutException;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
+import com.github.karsaii.core.namespaces.DataFunctions;
 import com.github.karsaii.core.namespaces.executor.step.StepExecutor;
 import com.github.karsaii.core.namespaces.executor.step.StepFactory;
 import com.github.karsaii.core.namespaces.factories.wait.WaitDataFactory;
@@ -79,7 +80,7 @@ public class WaitTests {
         final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 300000));
         final var result = Wait.repeatWithDefaultState(waitData);
 
-        Assertions.assertTrue(result.status, result.message.toString());
+        Assertions.assertTrue(result.status, DataFunctions.getFormattedMessage(result));
     }
 
     @DisplayName("Wait Repeat - none fails over time, limit 3")
@@ -92,7 +93,7 @@ public class WaitTests {
         final var waitData = WaitDataFactory.getWith(steps, DataPredicates::isExecutionValidNonFalse, "Steps passed", WaitTimeDataFactory.getWithDefaultClock(100, 300000));
         final var result = Wait.repeatWithDefaultState(waitData, 3);
 
-        Assertions.assertTrue(result.status, result.message.toString());
+        Assertions.assertTrue(result.status, DataFunctions.getFormattedMessage(result));
     }
 
     @DisplayName("Wait Repeat - none fails over time, limit 2")

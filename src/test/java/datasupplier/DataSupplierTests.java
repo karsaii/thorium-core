@@ -81,7 +81,7 @@ public class DataSupplierTests {
         final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test1", OKAY_MESSAGE), null);
         final var stepSleep = CommonSteps.sleep(9000);
         final var failureStep = StepFactory.voidStep(() -> {
-            CommonSteps.sleep(2000);
+            CommonSteps.sleep(2000).apply();
             throw new RuntimeException("Throwing stuff");
         });
 
@@ -95,12 +95,49 @@ public class DataSupplierTests {
         final var step = StepFactory.step((Void nothing) -> DataFactoryFunctions.getWith("Applesauce", true, "test1", OKAY_MESSAGE), null);
         final var stepSleep = CommonSteps.sleep(9000);
         final var failureStep = StepFactory.voidStep(() -> {
-            CommonSteps.sleep(2000);
+            CommonSteps.sleep(2000).apply();
             throw new RuntimeException("Throwing stuff");
         });
 
         final var result = CommonSteps.executeParallelTimed(11000, step, CommonSteps.executeParallelTimed(10000, stepSleep, failureStep)).apply();
         Assertions.assertFalse(result.status, DataFunctions.getFormattedMessage(result));
+    }
+
+    @DisplayName("Parallel step failure - any")
+    @Test
+    void parallelStepExecutionFailureAnyTest() {
+        final var step =  StepFactory.voidStep(() -> {
+            CommonSteps.sleep(1000).apply();
+            throw new RuntimeException("Throwing stuff1");
+        });
+        final var stepSleep =  StepFactory.voidStep(() -> {
+            CommonSteps.sleep(2000).apply();
+            throw new RuntimeException("Throwing stuff2");
+        });
+        final var failureStep = StepFactory.voidStep(() -> {
+            CommonSteps.sleep(3000).apply();
+            throw new RuntimeException("Throwing stuff3");
+        });
+
+        final var result = CommonSteps.executeParallelEndOnAnyTimed(11000, step, stepSleep, failureStep).apply();
+        Assertions.assertFalse(result.status, DataFunctions.getFormattedMessage(result));
+    }
+
+    @DisplayName("Parallel step pass - any")
+    @Test
+    void parallelStepExecutionPassAnyTest() {
+        final var step =  StepFactory.voidStep(() -> CommonSteps.sleep(1000).apply());
+        final var stepSleep =  StepFactory.voidStep(() -> {
+            CommonSteps.sleep(2000).apply();
+            throw new RuntimeException("Throwing stuff2");
+        });
+        final var failureStep = StepFactory.voidStep(() -> {
+            CommonSteps.sleep(12000).apply();
+            throw new RuntimeException("Throwing stuff3");
+        });
+
+        final var result = CommonSteps.executeParallelEndOnAnyTimed(11000, step, stepSleep, failureStep).apply();
+        Assertions.assertTrue(result.status, DataFunctions.getFormattedMessage(result));
     }
 
     @DisplayName("One step failed")

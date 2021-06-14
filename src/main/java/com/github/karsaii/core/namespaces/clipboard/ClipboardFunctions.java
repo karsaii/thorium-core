@@ -6,6 +6,7 @@ import com.github.karsaii.core.constants.validators.CoreFormatterConstants;
 import com.github.karsaii.core.extensions.namespaces.CoreUtilities;
 import com.github.karsaii.core.extensions.namespaces.NullableFunctions;
 import com.github.karsaii.core.namespaces.DataFactoryFunctions;
+import com.github.karsaii.core.namespaces.DataFunctions;
 import com.github.karsaii.core.namespaces.ExceptionHandlers;
 import com.github.karsaii.core.namespaces.exception.ClipboardExceptionHandlers;
 import com.github.karsaii.core.namespaces.predicates.DataPredicates;
@@ -29,7 +30,7 @@ public interface ClipboardFunctions {
 
         final var setResult = ClipboardExceptionHandlers.setContentsHandler(data.clipboard, new StringSelection(message));
         if (DataPredicates.isInvalidOrFalse(setResult)) {
-            return DataFactoryFunctions.replaceMessage(setResult, nameof, setResult.message.toString());
+            return DataFactoryFunctions.replaceMessage(setResult, nameof, DataFunctions.getFormattedMessage(setResult));
         }
 
         final var getResult = getFromClipboardCore(data);
@@ -42,7 +43,7 @@ public interface ClipboardFunctions {
         final var nameof = "getFromClipboard";
         final var getResult = ClipboardExceptionHandlers.transferHandler(data);
         if (DataPredicates.isInvalidOrFalse(getResult)) {
-            return DataFactoryFunctions.getWith(CoreFormatterConstants.EMPTY, getResult.status, nameof, getResult.message.toString(), getResult.exception);
+            return DataFactoryFunctions.getWith(CoreFormatterConstants.EMPTY, getResult.status, nameof, DataFunctions.getFormattedMessage(getResult), getResult.exception);
         }
 
         final var castResult = ExceptionHandlers.classCastHandler(new HandleResultData<>(data.castData.caster, getResult.object, data.castData.defaultValue));

@@ -252,5 +252,4 @@ public interface StepExecutor {
         final var status = data.status;
         return DataFactoryFunctions.getBoolean(status, nameof, data.message.message, result.exception);
     }
-    /*static Data<Boolean>*/
 }

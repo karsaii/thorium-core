@@ -13,6 +13,10 @@ public interface CommonSteps {
         return (v) -> StepExecutor.execute(duration, steps);
     }
 
+    private static Function<Void, Data<Boolean>> executeParallelEndOnAnyTimedCore(int duration, DataSupplier<?>... steps) {
+        return (v) -> StepExecutor.executeEndOnAnyResult(duration, steps);
+    }
+
     private static Data<Boolean> sleepCore(int duration) {
         Wait.sleep(duration);
         return DataFactoryFunctions.getBoolean(true, "sleep", "Sleep(\"" + duration + "\" milliseconds) " + CoreFormatterConstants.WAS_SUCCESSFUL);
@@ -24,6 +28,10 @@ public interface CommonSteps {
 
     static DataSupplier<Boolean> executeParallelTimed(int duration, DataSupplier<?>... steps) {
         return StepFactory.voidStep(executeParallelTimedCore(duration, steps));
+    }
+
+    static DataSupplier<Boolean> executeParallelEndOnAnyTimed(int duration, DataSupplier<?>... steps) {
+        return StepFactory.voidStep(executeParallelEndOnAnyTimedCore(duration, steps));
     }
 
     static DataSupplier<Boolean> sleep(int duration) {
