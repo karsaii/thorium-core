@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <groupId>com.github.karsaii</groupId>
+    <groupId>com.neathorium</groupId>
     <artifactId>thorium-core</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
@@ -68,7 +68,7 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>com.github.karsaii.tests</id>
+            <id>com.neathorium.tests</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
